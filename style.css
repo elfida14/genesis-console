@@ -1,20 +1,27 @@
 body {
+  background-color: #0f0f0f;
+  color: #00ff99;
+  font-family: monospace;
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
-  background-color: #111;
-  color: #eee;
 }
-
 .console {
-  background-color: #000;
+  max-width: 800px;
+  margin: 50px auto;
   padding: 20px;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 14px;
-  color: #0f0;
-  min-height: 100vh;
+  background: #111;
+  border: 1px solid #00ff99;
+  border-radius: 10px;
 }
-
-.console .line {
-  margin-bottom: 5px;
+#output {
+  white-space: pre-wrap;
+  margin-bottom: 15px;
+}
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #000;
+  color: #00ff99;
+  border: 1px solid #00ff99;
 }
