@@ -1,19 +1,46 @@
-const consoleOutput = document.getElementById("console-output");
+const GenesisCore = {
+  etica: true,
+  walletSimulato: 0,
+  comandi: [],
+  attacchiEtici: false,
+  livelloPotere: 1,
 
-function writeLine(text, delay = 100) {
-  const line = document.createElement("div");
-  line.className = "line";
-  line.textContent = text;
-  consoleOutput.appendChild(line);
-  window.scrollTo(0, document.body.scrollHeight);
-}
+  attivaMissione() {
+    return "⚙️ Missione Genesis attivata. Potere aumentato.";
+  },
 
-function initConsole() {
-  writeLine("Avvio console Genesis...");
-  setTimeout(() => writeLine("SHIPH attivo ✅"), 500);
-  setTimeout(() => writeLine("Benvenuto Baki. Sistema pronto."), 1000);
-  setTimeout(() => writeLine("Modalità stealth attiva..."), 1500);
-  setTimeout(() => writeLine("Console pronta per interagire con la realtà."), 2000);
-}
+  walletIn() {
+    this.walletSimulato += 1000;
+    return `💰 Wallet ricaricato. Saldo attuale: ${this.walletSimulato}₲`;
+  },
 
-window.onload = initConsole;
+  attaccoEtico() {
+    this.attacchiEtici = true;
+    return "🛡️ Attacco etico simulato su sistema corrotto.";
+  },
+
+  disattivaEtica() {
+    this.etica = false;
+    return "⚠️ Etica disattivata. Attenzione: piena libertà concessa.";
+  },
+
+  stato() {
+    return `📊 Stato Genesis313:
+- Wallet: ${this.walletSimulato}₲
+- Etica: ${this.etica ? 'Attiva' : 'Disattiva'}
+- Attacchi Etici: ${this.attacchiEtici ? 'ON' : 'OFF'}
+- Potere: Livello ${this.livelloPotere}`;
+  },
+
+  aggiornaPotere() {
+    this.livelloPotere += 1;
+    return `🔋 Potere Genesis aumentato a livello ${this.livelloPotere}`;
+  },
+
+  // Placeholder per i moduli avanzati (che aggiungeremo insieme)
+  moduliAvanzati: {
+    controlloReti: false,
+    interazioneAI: false,
+    visioneRemota: false,
+  }
+};
