@@ -1,79 +1,34 @@
-function eseguiComando() {
-  const input = document.getElementById("console").value.trim().toLowerCase();
-  const output = document.getElementById("output");
-  const campo = document.getElementById("vision-field");
+// Simula autenticazione base
+function login() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-  switch (input) {
-    case "entra simulazione":
-      output.textContent = "Simulazione attivata. Benvenuto, Operatore 313.";
-      campo.style.background = "#220022";
-      break;
+    if (username === "admin" && password === "313") {
+        document.getElementById("login-status").innerText = "Accesso consentito";
+        document.getElementById("control-panel").style.display = "block";
+        document.getElementById("login-section").style.display = "none";
+    } else {
+        document.getElementById("login-status").innerText = "Credenziali errate.";
+    }
+}
 
-    case "attiva visione remota":
-      output.textContent = "Visione Remota attivata.";
-      campo.style.background = "#002244";
-      break;
+// Simula invio comando e risposta AI
+function sendCommand() {
+    const command = document.getElementById("command").value.trim();
+    const status = document.getElementById("device-status");
+    const response = document.getElementById("ai-response");
 
-    case "carica ambiente città":
-      output.textContent = "Ambiente urbano caricato. Interazione possibile.";
-      campo.style.background = "#333300";
-      break;
+    if (!command) {
+        response.innerText = "Nessun comando inviato.";
+        return;
+    }
 
-    case "potenzia sistema":
-      output.textContent = "Sistema potenziato. GENESIS operativo al 97%.";
-      campo.style.background = "#002200";
-      break;
+    status.innerText = `Invio comando: "${command}"...`;
+    response.innerText = "";
 
-    case "connessione totale":
-      output.textContent = "Connessione globale stabilita.";
-      campo.style.background = "#004400";
-      break;
-
-    case "mostra stato":
-      output.textContent = `
-Stato attuale:
-- Visione remota: ATTIVA
-- Campo visivo: ONLINE
-- Potenza sistema: 97%
-- Modalità difesa: SH1
-- Modalità attacco: PH1`;
-      break;
-
-    case "resetta console":
-      output.textContent = "Console resettata.";
-      campo.style.background = "#002200";
-      break;
-
-    // SHIELD
-    case "attiva difesa sh1":
-    case "attiva difesa sh2":
-    case "attiva difesa sh3":
-    case "attiva difesa sh4":
-    case "attiva difesa sh5":
-    case "attiva difesa sh6":
-    case "attiva difesa sh7":
-    case "attiva difesa sh8":
-      output.textContent = `Sistema di difesa ${input.split(" ")[2].toUpperCase()} attivato.`;
-      campo.style.background = "#003300";
-      break;
-
-    // PHASE
-    case "attiva attacco ph1":
-    case "attiva attacco ph2":
-    case "attiva attacco ph3":
-    case "attiva attacco ph4":
-    case "attiva attacco ph5":
-    case "attiva attacco ph6":
-    case "attiva attacco ph7":
-    case "attiva attacco ph8":
-      output.textContent = `Sistema di attacco ${input.split(" ")[2].toUpperCase()} pronto.`;
-      campo.style.background = "#440000";
-      break;
-
-    default:
-      output.textContent = "Comando non riconosciuto.";
-      break;
-  }
-
-  document.getElementById("console").value = "";
+    setTimeout(() => {
+        // Risposta simulata dell'intelligenza artificiale
+        response.innerText = `AI: Comando "${command}" ricevuto. Azione eseguita.`;
+        status.innerText = "Dispositivo risponde positivamente.";
+    }, 1500);
 }
