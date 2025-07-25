@@ -1,59 +1,80 @@
-// Modulo 3 – Potenziamento Intelligente & Modalità Speciali
-GenesisCore.memoriaComandi = [];
+const PASSWORD_CORRETTA = 'Genesis313';
 
-GenesisCore.nuoviComandi = {
-  "attiva quantum": () => {
-    GenesisCore.livelloPotere += 3;
-    return "⚛️ Modalità Quantum attivata. Potere espanso dimensionalmente.";
+document.getElementById("login").addEventListener("click", function () {
+  const pwd = document.getElementById("password").value;
+  if (pwd === PASSWORD_CORRETTA) {
+    document.getElementById("loginArea").style.display = "none";
+    document.getElementById("comandoArea").style.display = "block";
+    document.getElementById("output").innerText = "✅ Accesso Genesis313 riuscito. Comando attivo.";
+  } else {
+    document.getElementById("output").innerText = "❌ Password errata.";
+  }
+});
+
+const GenesisCore = {
+  etica: true,
+  walletSimulato: 0,
+  attacchiEtici: false,
+  livelloPotere: 1,
+  memoriaComandi: [],
+  modulo3Attivo: true,
+
+  attivaMissione() {
+    return "⚙️ Missione Genesis attivata. Potere aumentato.";
+  },
+  walletIn() {
+    this.walletSimulato += 1000;
+    return `💰 Wallet caricato: +1000₲. Totale: ${this.walletSimulato}₲`;
+  },
+  attaccoEtico() {
+    this.attacchiEtici = true;
+    return "🛡️ Attacco etico eseguito. Corruzione localizzata.";
+  },
+  disattivaEtica() {
+    this.etica = false;
+    return "⚠️ Etica disattivata. Comandi non filtrati.";
+  },
+  stato() {
+    return `📊 STATO GENESIS313:
+- Wallet: ${this.walletSimulato}₲
+- Etica: ${this.etica ? 'Attiva' : 'Disattivata'}
+- Attacchi Etici: ${this.attacchiEtici ? 'ON' : 'OFF'}
+- Potere: Livello ${this.livelloPotere}
+- Modulo 3: ${this.modulo3Attivo ? 'Attivo' : 'Non attivo'}`;
+  },
+  aggiornaPotere() {
+    this.livelloPotere++;
+    return `🔋 Livello Potere aumentato a ${this.livelloPotere}`;
+  },
+  mostraMemoria() {
+    return `🧠 Comandi recenti:\n${this.memoriaComandi.join('\n')}`;
+  },
+  resetMemoria() {
+    this.memoriaComandi = [];
+    return '♻️ Memoria comandi cancellata.';
   },
 
-  "attiva invisibile": () => {
-    return "🕶️ Modalità Invisibile Apertiva ON. Attività mascherata digitalmente.";
-  },
+  eseguiComando(comando) {
+    this.memoriaComandi.push(comando);
+    const comandiSpeciali = {
+      'attiva quantum': '🌀 Quantum Mode: Attiva. Visione potenziata.',
+      'modalità invisibile': '👻 Invisibilità attiva. Non rilevabile.',
+      'autocomando': '🤖 Suggerimento: Prova "aggiornaPotere" o "walletIn".',
+      'mostra memoria': this.mostraMemoria(),
+      'reset memoria': this.resetMemoria(),
+    };
 
-  "rivedi memoria": () => {
-    if (GenesisCore.memoriaComandi.length === 0) {
-      return "🧠 Nessun comando memorizzato.";
+    if (comandiSpeciali[comando.toLowerCase()]) {
+      return comandiSpeciali[comando.toLowerCase()];
     }
-    return "📂 Comandi usati:\n- " + GenesisCore.memoriaComandi.join("\n- ");
-  },
 
-  "svuota memoria": () => {
-    GenesisCore.memoriaComandi = [];
-    return "🧹 Memoria comandi svuotata.";
-  },
-
-  "auto potenzia": () => {
-    GenesisCore.livelloPotere += Math.floor(Math.random() * 5) + 1;
-    return `⚡ Auto-potenza attivata. Livello potere attuale: ${GenesisCore.livelloPotere}`;
+    return this[comando] ? this[comando]() : `⛔ Comando "${comando}" non riconosciuto.`;
   }
 };
 
-// Sovrascrivo input handler (versione migliorata)
-document.getElementById("input").addEventListener("keydown", function(e) {
-  if (e.key === "Enter") {
-    const comando = this.value.trim().toLowerCase();
-    const output = document.getElementById("output");
-
-    // Salva il comando
-    if (comando !== "") {
-      GenesisCore.memoriaComandi.push(comando);
-    }
-
-    // Cerca se esiste un comando base
-    let risposta = "";
-    if (GenesisCore[comando]) {
-      risposta = GenesisCore[comando]();
-    }
-    // Oppure comando nuovo (Modulo 3)
-    else if (GenesisCore.nuoviComandi[comando]) {
-      risposta = GenesisCore.nuoviComandi[comando]();
-    }
-    else {
-      risposta = `❓ Comando non riconosciuto: ${comando}`;
-    }
-
-    output.innerText = `[Genesis313 Console]\n${risposta}`;
-    this.value = "";
-  }
+document.getElementById("submit").addEventListener("click", function () {
+  const cmd = document.getElementById("input").value;
+  const risposta = GenesisCore.eseguiComando(cmd);
+  document.getElementById("output").innerText = risposta;
+  document.getElementById("input").value = "";
 });
