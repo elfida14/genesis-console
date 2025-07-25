@@ -92,30 +92,7 @@
         document.getElementById('output').innerText = "✅ Accesso riuscito. Benvenuto Genesis313.";
         document.getElementById('consoleArea').style.display = 'block';
       } else {
-        document.getElementById('output').innerText = "❌ Password errata. Riprova.";
-      }
-    }
-
-    function eseguiComando() {
-      const comando = document.getElementById('input').value.trim();
-      let risposta = "";
-
-      switch(comando.toLowerCase()) {
-        case "attiva missione":
-          risposta = GenesisCore.attivaMissione();
-          break;
-        case "wallet in":
-          risposta = GenesisCore.walletIn();
-          break;
-        case "attacco etico":
-          risposta = GenesisCore.attaccoEtico();
-          break;
-        case "disattiva etica":
-          risposta = GenesisCore.disattivaEtica();
-          break;
-        case "stato":
-          risposta = GenesisCore.stato();
-          break;
+        document.getElementById('output').innerText = "❌ Password 
         case "aggiorna potere":
           risposta = GenesisCore.aggiornaPotere();
           break;
