@@ -5,131 +5,127 @@
   <title>GENESIS313 Console</title>
   <style>
     body {
-      background-color: #000;
-      color: #0f0;
-      font-family: 'Courier New', Courier, monospace;
+      background-color: black;
+      color: lime;
+      font-family: monospace;
       padding: 20px;
     }
     .console {
-      max-width: 800px;
+      max-width: 600px;
       margin: auto;
     }
     input {
-      width: 100%;
+      background: #111;
+      color: lime;
+      border: 1px solid lime;
       padding: 10px;
-      background-color: #111;
-      color: #0f0;
-      border: 1px solid #0f0;
-      margin-top: 10px;
-      font-family: inherit;
+      margin: 5px 0;
+      width: 100%;
+    }
+    button {
+      background: lime;
+      color: black;
+      font-weight: bold;
+      padding: 10px;
+      border: none;
+      width: 100%;
+      margin-top: 5px;
     }
     #output {
-      white-space: pre-line;
-      margin-bottom: 20px;
-      border: 1px solid #0f0;
-      padding: 10px;
-      background: #111;
+      white-space: pre-wrap;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
   <div class="console">
-    <div id="output">[Genesis313 Ready] Inserisci comando:</div>
+    <div id="output">[Genesis313 Console] Inserisci la password per accedere:</div>
     <input type="password" id="password" placeholder="Password">
-    <input type="text" id="input" placeholder="Digita qui il comando...">
+    <button onclick="verificaPassword()">Accedi</button>
+    <div id="consoleArea" style="display:none;">
+      <input type="text" id="input" placeholder="Digita qui il comando...">
+      <button onclick="eseguiComando()">Invia</button>
+    </div>
   </div>
 
   <script>
+    const passwordCorretta = "Genesis313";
     const GenesisCore = {
       etica: true,
       walletSimulato: 0,
       comandi: [],
       attacchiEtici: false,
       livelloPotere: 1,
-      memoria: [],
-      phantomMode: false,
 
       attivaMissione() {
-        this.registra("Missione attivata");
         return "⚙️ Missione Genesis attivata. Potere aumentato.";
       },
 
       walletIn() {
         this.walletSimulato += 1000;
-        this.registra("walletIn");
         return `💰 Wallet ricaricato. Saldo attuale: ${this.walletSimulato}₲`;
       },
 
       attaccoEtico() {
         this.attacchiEtici = true;
-        this.registra("attaccoEtico");
         return "🛡️ Attacco etico simulato su sistema corrotto.";
       },
 
       disattivaEtica() {
         this.etica = false;
-        this.registra("etica disattivata");
-        return "⚠️ Etica disattivata. Piena libertà concessa.";
+        return "⚠️ Etica disattivata. Attenzione: piena libertà concessa.";
+      },
+
+      stato() {
+        return `📊 Stato Genesis313:\n- Wallet: ${this.walletSimulato}₲\n- Etica: ${this.etica ? 'Attiva' : 'Disattiva'}\n- Attacchi Etici: ${this.attacchiEtici ? 'ON' : 'OFF'}\n- Potere: Livello ${this.livelloPotere}`;
       },
 
       aggiornaPotere() {
         this.livelloPotere += 1;
-        this.registra("potere aumentato");
         return `🔋 Potere Genesis aumentato a livello ${this.livelloPotere}`;
-      },
-
-      attivaPhantom() {
-        this.phantomMode = true;
-        this.registra("phantom attivo");
-        return "🌑 Phantom Mode attivata. Operazioni in background avviate.";
-      },
-
-      stato() {
-        return `📊 Stato Genesis313:
-- Wallet: ${this.walletSimulato}₲
-- Etica: ${this.etica ? 'Attiva' : 'Disattiva'}
-- Attacchi Etici: ${this.attacchiEtici ? 'ON' : 'OFF'}
-- Potere: Livello ${this.livelloPotere}
-- Phantom: ${this.phantomMode ? 'Attivo' : 'Disattivo'}`;
-      },
-
-      registra(comando) {
-        this.memoria.push(`[MEM] → ${comando}`);
-      },
-
-      rivediMemoria() {
-        return this.memoria.length > 0 ? this.memoria.join('\n') : "📭 Nessun comando registrato.";
-      },
-
-      moduliAvanzati: {
-        controlloReti: false,
-        interazioneAI: false,
-        visioneRemota: false,
       }
     };
 
-    const output = document.getElementById("output");
-    const input = document.getElementById("input");
-    const password = document.getElementById("password");
-
-    input.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        const cmd = input.value.trim();
-        if (!password.value || password.value !== "313centotre") {
-          output.innerText += `\n❌ Password errata.`;
-          return;
-        }
-
-        if (GenesisCore[cmd]) {
-          const result = GenesisCore[cmd]();
-          output.innerText += `\n> ${cmd}\n${result}`;
-        } else {
-          output.innerText += `\n> ${cmd}\n⛔ Comando non riconosciuto.`;
-        }
-
-        input.value = "";
+    function verificaPassword() {
+      const pass = document.getElementById('password').value;
+      if (pass === passwordCorretta) {
+        document.getElementById('output').innerText = "✅ Accesso riuscito. Benvenuto Genesis313.";
+        document.getElementById('consoleArea').style.display = 'block';
+      } else {
+        document.getElementById('output').innerText = "❌ Password errata. Riprova.";
       }
-    });
+    }
+
+    function eseguiComando() {
+      const comando = document.getElementById('input').value.trim();
+      let risposta = "";
+
+      switch(comando.toLowerCase()) {
+        case "attiva missione":
+          risposta = GenesisCore.attivaMissione();
+          break;
+        case "wallet in":
+          risposta = GenesisCore.walletIn();
+          break;
+        case "attacco etico":
+          risposta = GenesisCore.attaccoEtico();
+          break;
+        case "disattiva etica":
+          risposta = GenesisCore.disattivaEtica();
+          break;
+        case "stato":
+          risposta = GenesisCore.stato();
+          break;
+        case "aggiorna potere":
+          risposta = GenesisCore.aggiornaPotere();
+          break;
+        default:
+          risposta = "❓ Comando sconosciuto.";
+      }
+
+      document.getElementById('output').innerText += `\n> ${comando}\n${risposta}`;
+      document.getElementById('input').value = "";
+    }
   </script>
 </body>
 </html>
