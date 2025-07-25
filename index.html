@@ -5,29 +5,30 @@
   <title>GENESIS313 Console</title>
   <style>
     body {
-      background-color: black;
-      color: #00ff00;
-      font-family: monospace;
+      background-color: #000;
+      color: #0f0;
+      font-family: 'Courier New', Courier, monospace;
       padding: 20px;
     }
     .console {
-      max-width: 600px;
+      max-width: 800px;
       margin: auto;
     }
-    #output {
-      white-space: pre-wrap;
-      margin-bottom: 10px;
-      border: 1px solid #00ff00;
-      padding: 10px;
-      height: 200px;
-      overflow-y: auto;
-    }
-    input, button {
-      display: block;
+    input {
       width: 100%;
-      margin-top: 10px;
       padding: 10px;
-      font-family: monospace;
+      background-color: #111;
+      color: #0f0;
+      border: 1px solid #0f0;
+      margin-top: 10px;
+      font-family: inherit;
+    }
+    #output {
+      white-space: pre-line;
+      margin-bottom: 20px;
+      border: 1px solid #0f0;
+      padding: 10px;
+      background: #111;
     }
   </style>
 </head>
@@ -36,7 +37,6 @@
     <div id="output">[Genesis313 Ready] Inserisci comando:</div>
     <input type="password" id="password" placeholder="Password">
     <input type="text" id="input" placeholder="Digita qui il comando...">
-    <button onclick="inviaComando()">Invia</button>
   </div>
 
   <script>
@@ -46,72 +46,89 @@
       comandi: [],
       attacchiEtici: false,
       livelloPotere: 1,
+      memoria: [],
+      phantomMode: false,
 
       attivaMissione() {
+        this.registra("Missione attivata");
         return "⚙️ Missione Genesis attivata. Potere aumentato.";
       },
+
       walletIn() {
         this.walletSimulato += 1000;
+        this.registra("walletIn");
         return `💰 Wallet ricaricato. Saldo attuale: ${this.walletSimulato}₲`;
       },
+
       attaccoEtico() {
         this.attacchiEtici = true;
+        this.registra("attaccoEtico");
         return "🛡️ Attacco etico simulato su sistema corrotto.";
       },
+
       disattivaEtica() {
         this.etica = false;
-        return "⚠️ Etica disattivata. Attenzione: piena libertà concessa.";
+        this.registra("etica disattivata");
+        return "⚠️ Etica disattivata. Piena libertà concessa.";
       },
-      stato() {
-        return `📊 Stato Genesis313:\n- Wallet: ${this.walletSimulato}₲\n- Etica: ${this.etica ? 'Attiva' : 'Disattiva'}\n- Attacchi Etici: ${this.attacchiEtici ? 'ON' : 'OFF'}\n- Potere: Livello ${this.livelloPotere}`;
-      },
+
       aggiornaPotere() {
         this.livelloPotere += 1;
+        this.registra("potere aumentato");
         return `🔋 Potere Genesis aumentato a livello ${this.livelloPotere}`;
+      },
+
+      attivaPhantom() {
+        this.phantomMode = true;
+        this.registra("phantom attivo");
+        return "🌑 Phantom Mode attivata. Operazioni in background avviate.";
+      },
+
+      stato() {
+        return `📊 Stato Genesis313:
+- Wallet: ${this.walletSimulato}₲
+- Etica: ${this.etica ? 'Attiva' : 'Disattiva'}
+- Attacchi Etici: ${this.attacchiEtici ? 'ON' : 'OFF'}
+- Potere: Livello ${this.livelloPotere}
+- Phantom: ${this.phantomMode ? 'Attivo' : 'Disattivo'}`;
+      },
+
+      registra(comando) {
+        this.memoria.push(`[MEM] → ${comando}`);
+      },
+
+      rivediMemoria() {
+        return this.memoria.length > 0 ? this.memoria.join('\n') : "📭 Nessun comando registrato.";
+      },
+
+      moduliAvanzati: {
+        controlloReti: false,
+        interazioneAI: false,
+        visioneRemota: false,
       }
     };
 
-    function inviaComando() {
-      const password = document.getElementById('password').value;
-      const input = document.getElementById('input').value.trim().toLowerCase();
-      const output = document.getElementById('output');
+    const output = document.getElementById("output");
+    const input = document.getElementById("input");
+    const password = document.getElementById("password");
 
-      if (password !== "Genesis313") {
-        output.textContent += "\n❌ Password errata.";
-        return;
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        const cmd = input.value.trim();
+        if (!password.value || password.value !== "313centotre") {
+          output.innerText += `\n❌ Password errata.`;
+          return;
+        }
+
+        if (GenesisCore[cmd]) {
+          const result = GenesisCore[cmd]();
+          output.innerText += `\n> ${cmd}\n${result}`;
+        } else {
+          output.innerText += `\n> ${cmd}\n⛔ Comando non riconosciuto.`;
+        }
+
+        input.value = "";
       }
-
-      let risposta;
-      switch (input) {
-        case "attiva missione":
-          risposta = GenesisCore.attivaMissione();
-          break;
-        case "wallet in":
-          risposta = GenesisCore.walletIn();
-          break;
-        case "attacco etico":
-          risposta = GenesisCore.attaccoEtico();
-          break;
-        case "disattiva etica":
-          risposta = GenesisCore.disattivaEtica();
-          break;
-        case "stato":
-          risposta = GenesisCore.stato();
-          break;
-        case "aggiorna potere":
-          risposta = GenesisCore.aggiornaPotere();
-          break;
-        default:
-          risposta = "🤖 Comando non riconosciuto.";
-      }
-
-      output.textContent += `\n> ${input}\n${risposta}`;
-      document.getElementById('input').value = "";
-      output.scrollTop = output.scrollHeight;
-    }
-
-    document.getElementById('input').addEventListener("keypress", function (e) {
-      if (e.key === "Enter") inviaComando();
     });
   </script>
 </body>
