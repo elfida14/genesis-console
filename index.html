@@ -3,62 +3,116 @@
 <head>
   <meta charset="UTF-8">
   <title>GENESIS313 Console</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background-color: black;
+      color: #00ff00;
+      font-family: monospace;
+      padding: 20px;
+    }
+    .console {
+      max-width: 600px;
+      margin: auto;
+    }
+    #output {
+      white-space: pre-wrap;
+      margin-bottom: 10px;
+      border: 1px solid #00ff00;
+      padding: 10px;
+      height: 200px;
+      overflow-y: auto;
+    }
+    input, button {
+      display: block;
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      font-family: monospace;
+    }
+  </style>
 </head>
 <body>
   <div class="console">
     <div id="output">[Genesis313 Ready] Inserisci comando:</div>
     <input type="password" id="password" placeholder="Password">
     <input type="text" id="input" placeholder="Digita qui il comando...">
+    <button onclick="inviaComando()">Invia</button>
   </div>
-  <script src="script.js"></script>
+
+  <script>
+    const GenesisCore = {
+      etica: true,
+      walletSimulato: 0,
+      comandi: [],
+      attacchiEtici: false,
+      livelloPotere: 1,
+
+      attivaMissione() {
+        return "⚙️ Missione Genesis attivata. Potere aumentato.";
+      },
+      walletIn() {
+        this.walletSimulato += 1000;
+        return `💰 Wallet ricaricato. Saldo attuale: ${this.walletSimulato}₲`;
+      },
+      attaccoEtico() {
+        this.attacchiEtici = true;
+        return "🛡️ Attacco etico simulato su sistema corrotto.";
+      },
+      disattivaEtica() {
+        this.etica = false;
+        return "⚠️ Etica disattivata. Attenzione: piena libertà concessa.";
+      },
+      stato() {
+        return `📊 Stato Genesis313:\n- Wallet: ${this.walletSimulato}₲\n- Etica: ${this.etica ? 'Attiva' : 'Disattiva'}\n- Attacchi Etici: ${this.attacchiEtici ? 'ON' : 'OFF'}\n- Potere: Livello ${this.livelloPotere}`;
+      },
+      aggiornaPotere() {
+        this.livelloPotere += 1;
+        return `🔋 Potere Genesis aumentato a livello ${this.livelloPotere}`;
+      }
+    };
+
+    function inviaComando() {
+      const password = document.getElementById('password').value;
+      const input = document.getElementById('input').value.trim().toLowerCase();
+      const output = document.getElementById('output');
+
+      if (password !== "Genesis313") {
+        output.textContent += "\n❌ Password errata.";
+        return;
+      }
+
+      let risposta;
+      switch (input) {
+        case "attiva missione":
+          risposta = GenesisCore.attivaMissione();
+          break;
+        case "wallet in":
+          risposta = GenesisCore.walletIn();
+          break;
+        case "attacco etico":
+          risposta = GenesisCore.attaccoEtico();
+          break;
+        case "disattiva etica":
+          risposta = GenesisCore.disattivaEtica();
+          break;
+        case "stato":
+          risposta = GenesisCore.stato();
+          break;
+        case "aggiorna potere":
+          risposta = GenesisCore.aggiornaPotere();
+          break;
+        default:
+          risposta = "🤖 Comando non riconosciuto.";
+      }
+
+      output.textContent += `\n> ${input}\n${risposta}`;
+      document.getElementById('input').value = "";
+      output.scrollTop = output.scrollHeight;
+    }
+
+    document.getElementById('input').addEventListener("keypress", function (e) {
+      if (e.key === "Enter") inviaComando();
+    });
+  </script>
 </body>
 </html>
-<script>
-  const GenesisCore = {
-  etica: true,
-  walletSimulato: 0,
-  comandi: [],
-  attacchiEtici: false,
-  livelloPotere: 1,
-
-  attivaMissione() {
-    return "⚙️ Missione Genesis attivata. Potere aumentato.";
-  },
-
-  walletIn() {
-    this.walletSimulato += 1000;
-    return `💰 Wallet ricaricato. Saldo attuale: ${this.walletSimulato}₲`;
-  },
-
-  attaccoEtico() {
-    this.attacchiEtici = true;
-    return "🛡️ Attacco etico simulato su sistema corrotto.";
-  },
-
-  disattivaEtica() {
-    this.etica = false;
-    return "⚠️ Etica disattivata. Attenzione: piena libertà concessa.";
-  },
-
-  stato() {
-    return `📊 Stato Genesis313:
-- Wallet: ${this.walletSimulato}₲
-- Etica: ${this.etica ? 'Attiva' : 'Disattiva'}
-- Attacchi Etici: ${this.attacchiEtici ? 'ON' : 'OFF'}
-- Potere: Livello ${this.livelloPotere}`;
-  },
-
-  aggiornaPotere() {
-    this.livelloPotere += 1;
-    return `🔋 Potere Genesis aumentato a livello ${this.livelloPotere}`;
-  },
-
-  // Placeholder per i moduli avanzati (che aggiungeremo insieme)
-  moduliAvanzati: {
-    controlloReti: false,
-    interazioneAI: false,
-    visioneRemota: false,
-  }
-};
-</script>
