@@ -1,43 +1,21 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Console Genesis 313</title>
-  <style>
-    body {
-      background: #000;
-      color: #0f0;
-      font-family: monospace;
-      padding: 20px;
-    }
-    #console {
-      width: 100%;
-      height: 300px;
-      background: #111;
-      border: 1px solid #0f0;
-      padding: 10px;
-      overflow-y: auto;
-    }
-    #inputArea {
-      margin-top: 10px;
-    }
-    input, button {
-      background: #000;
-      color: #0f0;
-      border: 1px solid #0f0;
-      padding: 5px;
-      font-family: monospace;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GENESIS 313 · Console</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h2>Accesso: GENESIS 313</h2>
-  <div id="console">Console pronta. Digita un comando.</div>
-  <div id="inputArea">
-    <input type="text" id="commandInput" placeholder="Scrivi comando es. attiva('quantum')" size="40" />
+  <div class="matrix-bg"></div>
+  <div class="console-container">
+    <h1>GENESIS · 313</h1>
+    <div id="vision-field">[ CAMPO VISIVO ATTIVO ]</div>
+    <textarea id="console" placeholder="Digita un comando..."></textarea>
     <button onclick="eseguiComando()">Invia</button>
+    <pre id="output"></pre>
   </div>
 
-  <script src="console-genesis.js"></script>
+  <script src="genesis.js"></script>
 </body>
 </html>
