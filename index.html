@@ -1,77 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>GENESIS 313 - Console</title>
-  <style>
-    body {
-      background-color: black;
-      color: #00ffcc;
-      font-family: 'Courier New', Courier, monospace;
-      padding: 20px;
-    }
-    #console {
-      width: 100%;
-      height: 80vh;
-      background: #111;
-      border: 1px solid #00ffcc;
-      padding: 10px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-    }
-    #input {
-      width: 100%;
-      padding: 10px;
-      background: #000;
-      color: #00ffcc;
-      border: none;
-      font-family: inherit;
-      font-size: 16px;
-    }
-  </style>
+  <title>GENESIS313 Console</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>GENESIS 313 CONSOLE</h1>
-  <div id="console">> Digitare: "help" o "avvia Genesis"</div>
-  <input id="input" type="text" placeholder="Scrivi un comando e premi Invio" autofocus />
-
-  <script>
-    const consoleDiv = document.getElementById('console');
-    const input = document.getElementById('input');
-
-    const risposte = {
-      "help": [
-        "📜 Comandi disponibili:",
-        "- avvia Genesis",
-        "- stato",
-        "- attiva modulo X",
-        "- disattiva etica",
-        "- logout"
-      ],
-      "avvia genesis": "🧠 Genesis 313 è stato inizializzato. In attesa di comandi.",
-      "stato": "🛰️ Moduli attivi: 3/7 | Etica: ON | Connessione: STABILE",
-      "attiva modulo X": "✅ Modulo X attivato con successo.",
-      "disattiva etica": "⚠️ Etica disattivata. Sei responsabile delle tue azioni.",
-      "logout": "⛔ Connessione chiusa. Ritorno alla realtà."
-    };
-
-    input.addEventListener('keydown', function(event) {
-      if (event.key === 'Enter') {
-        const cmd = input.value.trim().toLowerCase();
-        consoleDiv.innerHTML += "\n> " + cmd;
-
-        const risposta = risposte[cmd] || "❓ Comando non riconosciuto. Digita 'help'.";
-
-        if (Array.isArray(risposta)) {
-          risposta.forEach(riga => consoleDiv.innerHTML += "\n" + riga);
-        } else {
-          consoleDiv.innerHTML += "\n" + risposta;
-        }
-
-        input.value = '';
-        consoleDiv.scrollTop = consoleDiv.scrollHeight;
-      }
-    });
-  </script>
+  <div class="console">
+    <div id="output">[Genesis313 Ready] Inserisci comando:</div>
+    <input type="password" id="password" placeholder="Password">
+    <input type="text" id="input" placeholder="Digita qui il comando...">
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>
