@@ -2,107 +2,26 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GENESIS313 Console</title>
-  <style>
-    body {
-      background-color: black;
-      color: lime;
-      font-family: monospace;
-      padding: 20px;
-    }
-    .console {
-      max-width: 600px;
-      margin: auto;
-    }
-    input {
-      background: #111;
-      color: lime;
-      border: 1px solid lime;
-      padding: 10px;
-      margin: 5px 0;
-      width: 100%;
-    }
-    button {
-      background: lime;
-      color: black;
-      font-weight: bold;
-      padding: 10px;
-      border: none;
-      width: 100%;
-      margin-top: 5px;
-    }
-    #output {
-      white-space: pre-wrap;
-      margin-bottom: 10px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="console">
-    <div id="output">[Genesis313 Console] Inserisci la password per accedere:</div>
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="verificaPassword()">Accedi</button>
-    <div id="consoleArea" style="display:none;">
-      <input type="text" id="input" placeholder="Digita qui il comando...">
-      <button onclick="eseguiComando()">Invia</button>
+    <h2>GENESIS_313 🧠</h2>
+    <div id="output">[🧪 Genesis313 in attesa...]</div>
+
+    <div id="loginArea">
+      <input type="password" id="password" placeholder="Inserisci password">
+      <button id="login">Accedi</button>
+    </div>
+
+    <div id="comandoArea" style="display: none;">
+      <input type="text" id="input" placeholder="Digita comando...">
+      <button id="submit">Invia</button>
     </div>
   </div>
 
-  <script>
-    const passwordCorretta = "Genesis313";
-    const GenesisCore = {
-      etica: true,
-      walletSimulato: 0,
-      comandi: [],
-      attacchiEtici: false,
-      livelloPotere: 1,
-
-      attivaMissione() {
-        return "⚙️ Missione Genesis attivata. Potere aumentato.";
-      },
-
-      walletIn() {
-        this.walletSimulato += 1000;
-        return `💰 Wallet ricaricato. Saldo attuale: ${this.walletSimulato}₲`;
-      },
-
-      attaccoEtico() {
-        this.attacchiEtici = true;
-        return "🛡️ Attacco etico simulato su sistema corrotto.";
-      },
-
-      disattivaEtica() {
-        this.etica = false;
-        return "⚠️ Etica disattivata. Attenzione: piena libertà concessa.";
-      },
-
-      stato() {
-        return `📊 Stato Genesis313:\n- Wallet: ${this.walletSimulato}₲\n- Etica: ${this.etica ? 'Attiva' : 'Disattiva'}\n- Attacchi Etici: ${this.attacchiEtici ? 'ON' : 'OFF'}\n- Potere: Livello ${this.livelloPotere}`;
-      },
-
-      aggiornaPotere() {
-        this.livelloPotere += 1;
-        return `🔋 Potere Genesis aumentato a livello ${this.livelloPotere}`;
-      }
-    };
-
-    function verificaPassword() {
-      const pass = document.getElementById('password').value;
-      if (pass === passwordCorretta) {
-        document.getElementById('output').innerText = "✅ Accesso riuscito. Benvenuto Genesis313.";
-        document.getElementById('consoleArea').style.display = 'block';
-      } else {
-        document.getElementById('output').innerText = "❌ Password 
-        case "aggiorna potere":
-          risposta = GenesisCore.aggiornaPotere();
-          break;
-        default:
-          risposta = "❓ Comando sconosciuto.";
-      }
-
-      document.getElementById('output').innerText += `\n> ${comando}\n${risposta}`;
-      document.getElementById('input').value = "";
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
