@@ -2,26 +2,42 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GENESIS313 Console</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Console Genesis 313</title>
+  <style>
+    body {
+      background: #000;
+      color: #0f0;
+      font-family: monospace;
+      padding: 20px;
+    }
+    #console {
+      width: 100%;
+      height: 300px;
+      background: #111;
+      border: 1px solid #0f0;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input, button {
+      background: #000;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 5px;
+      font-family: monospace;
+    }
+  </style>
 </head>
 <body>
-  <div class="console">
-    <h2>GENESIS_313 🧠</h2>
-    <div id="output">[🧪 Genesis313 in attesa...]</div>
-
-    <div id="loginArea">
-      <input type="password" id="password" placeholder="Inserisci password">
-      <button id="login">Accedi</button>
-    </div>
-
-    <div id="comandoArea" style="display: none;">
-      <input type="text" id="input" placeholder="Digita comando...">
-      <button id="submit">Invia</button>
-    </div>
+  <h2>Accesso: GENESIS 313</h2>
+  <div id="console">Console pronta. Digita un comando.</div>
+  <div id="inputArea">
+    <input type="text" id="commandInput" placeholder="Scrivi comando es. attiva('quantum')" size="40" />
+    <button onclick="eseguiComando()">Invia</button>
   </div>
 
-  <script src="script.js"></script>
+  <script src="console-genesis.js"></script>
 </body>
 </html>
