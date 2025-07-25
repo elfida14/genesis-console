@@ -1,46 +1,59 @@
-const GenesisCore = {
-  etica: true,
-  walletSimulato: 0,
-  comandi: [],
-  attacchiEtici: false,
-  livelloPotere: 1,
+// Modulo 3 – Potenziamento Intelligente & Modalità Speciali
+GenesisCore.memoriaComandi = [];
 
-  attivaMissione() {
-    return "⚙️ Missione Genesis attivata. Potere aumentato.";
+GenesisCore.nuoviComandi = {
+  "attiva quantum": () => {
+    GenesisCore.livelloPotere += 3;
+    return "⚛️ Modalità Quantum attivata. Potere espanso dimensionalmente.";
   },
 
-  walletIn() {
-    this.walletSimulato += 1000;
-    return `💰 Wallet ricaricato. Saldo attuale: ${this.walletSimulato}₲`;
+  "attiva invisibile": () => {
+    return "🕶️ Modalità Invisibile Apertiva ON. Attività mascherata digitalmente.";
   },
 
-  attaccoEtico() {
-    this.attacchiEtici = true;
-    return "🛡️ Attacco etico simulato su sistema corrotto.";
+  "rivedi memoria": () => {
+    if (GenesisCore.memoriaComandi.length === 0) {
+      return "🧠 Nessun comando memorizzato.";
+    }
+    return "📂 Comandi usati:\n- " + GenesisCore.memoriaComandi.join("\n- ");
   },
 
-  disattivaEtica() {
-    this.etica = false;
-    return "⚠️ Etica disattivata. Attenzione: piena libertà concessa.";
+  "svuota memoria": () => {
+    GenesisCore.memoriaComandi = [];
+    return "🧹 Memoria comandi svuotata.";
   },
 
-  stato() {
-    return `📊 Stato Genesis313:
-- Wallet: ${this.walletSimulato}₲
-- Etica: ${this.etica ? 'Attiva' : 'Disattiva'}
-- Attacchi Etici: ${this.attacchiEtici ? 'ON' : 'OFF'}
-- Potere: Livello ${this.livelloPotere}`;
-  },
-
-  aggiornaPotere() {
-    this.livelloPotere += 1;
-    return `🔋 Potere Genesis aumentato a livello ${this.livelloPotere}`;
-  },
-
-  // Placeholder per i moduli avanzati (che aggiungeremo insieme)
-  moduliAvanzati: {
-    controlloReti: false,
-    interazioneAI: false,
-    visioneRemota: false,
+  "auto potenzia": () => {
+    GenesisCore.livelloPotere += Math.floor(Math.random() * 5) + 1;
+    return `⚡ Auto-potenza attivata. Livello potere attuale: ${GenesisCore.livelloPotere}`;
   }
 };
+
+// Sovrascrivo input handler (versione migliorata)
+document.getElementById("input").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    const comando = this.value.trim().toLowerCase();
+    const output = document.getElementById("output");
+
+    // Salva il comando
+    if (comando !== "") {
+      GenesisCore.memoriaComandi.push(comando);
+    }
+
+    // Cerca se esiste un comando base
+    let risposta = "";
+    if (GenesisCore[comando]) {
+      risposta = GenesisCore[comando]();
+    }
+    // Oppure comando nuovo (Modulo 3)
+    else if (GenesisCore.nuoviComandi[comando]) {
+      risposta = GenesisCore.nuoviComandi[comando]();
+    }
+    else {
+      risposta = `❓ Comando non riconosciuto: ${comando}`;
+    }
+
+    output.innerText = `[Genesis313 Console]\n${risposta}`;
+    this.value = "";
+  }
+});
