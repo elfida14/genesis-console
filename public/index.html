@@ -1,67 +1,15 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🌱 Genesis 313 Console</title>
-  <style>
-    body {
-      background-color: black;
-      color: #00ff00;
-      font-family: 'Courier New', monospace;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      color: #00ff99;
-    }
-    #output {
-      white-space: pre-wrap;
-      background-color: #111;
-      padding: 10px;
-      height: 300px;
-      overflow-y: auto;
-      margin-top: 20px;
-      border: 1px solid #00ff00;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      background-color: black;
-      color: #00ff00;
-      border: 1px solid #00ff00;
-      font-family: monospace;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>Genesis 313 Console</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>🚀 GENESIS 313 CONSOLE</h1>
-  <div id="output">[Console pronta. Scrivi un comando qui sotto ⬇️]</div>
-  <input type="text" id="commandInput" placeholder="Inserisci comando...">
-
-  <script>
-    const input = document.getElementById('commandInput');
-    const output = document.getElementById('output');
-
-    input.addEventListener('keydown', async (e) => {
-      if (e.key === 'Enter') {
-        const command = input.value;
-        output.innerText += `\n> ${command}`;
-        input.value = '';
-        try {
-          const res = await fetch('/command', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: 'test', data: command })
-          });
-          const json = await res.json();
-          output.innerText += `\n🧠 Risposta: ${JSON.stringify(json)}\n`;
-          output.scrollTop = output.scrollHeight;
-        } catch (err) {
-          output.innerText += `\n❌ Errore nella connessione\n`;
-        }
-      }
-    });
-  </script>
+  <div class="console">
+    <pre id="output">🔐 Inserisci la chiave segreta per avviare Genesis 313</pre>
+    <input type="text" id="input" placeholder="Inserisci chiave..." autofocus />
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>
