@@ -1,7 +1,11 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const app = express();
 const PORT = 3130;
+
+// 📁 Log su file
+const logStream = fs.createWriteStream('logs/tlgs.log', { flags: 'a' });
 
 // 🌐 Middleware globale
 app.use(express.json());
@@ -10,7 +14,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 // 🛡️ Middleware Sicurezza & Logging
 app.use((req, res, next) => {
   const utente = req.headers['x-user'] || 'sconosciuto';
-  console.log(`🔐 Richiesta da: ${utente} | ${req.method} ${req.url}`);
+  const messaggio = `🔐 Richiesta da: ${utente} | ${req.method} ${req.url}`;
+  console.log(messaggio);
+  logStream.write(`[LOG] ${new Date().toISOString()} - ${messaggio}\n`);
+
   // Blocca chi non è admin (es: livello 10)
   if (req.url !== '/' && utente !== 'Baki') {
     return res.status(403).json({ errore: 'Accesso negato - Livello insufficiente' });
@@ -65,7 +72,9 @@ app.get('/', (req, res) => {
 // ✅ Rotta di Test (POST) → per Postman
 app.post('/', (req, res) => {
   const utente = req.body.utente || 'nessuno';
-  console.log(`📩 POST ricevuto da: ${utente}`);
+  const messaggio = `📩 POST ricevuto da: ${utente}`;
+  console.log(messaggio);
+  logStream.write(`[POST] ${new Date().toISOString()} - ${messaggio}\n`);
   res.json({ messaggio: `Ciao ${utente}, il server è vivo e risponde! 🚀` });
 });
 
