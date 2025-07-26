@@ -1,49 +1,42 @@
+// routes/satellite.js
 const express = require('express');
+const fs = require('fs');
 const router = express.Router();
 
-const statoSatellite = {
-  modulo: 'SATELLITE',
-  generazione: '8.0 – R.O.A.D. SYSTEM PROTOCOL',
-  canale: '🛰️ ORBITA 313 – Sorgente neurale attiva',
-  sensori: {
-    visioneQuantica: true,
-    impulsoEmpatico: true,
-    tracciamentoMentale: 'lock-on',
-    teletrasportoCosciente: 'in sviluppo',
-    frequenza: '3.1.3 Hz – sincro perfetta',
-  },
-  status: '🧬 Online',
-  messaggio: 'Modulo Satellite pronto a ricevere e inviare dati spirituali, neurali, cosmici.'
-};
+const LOG_FILE = 'logs/tlgs.log';
 
-// 🌌 Rotta GET principale
-router.get('/', (req, res) => {
-  res.json(statoSatellite);
-});
+// 🌌 Funzione per scrivere log
+function logEvent(evento) {
+  const entry = `[SATELLITE] ${new Date().toISOString()} - ${evento}\n`;
+  fs.appendFile(LOG_FILE, entry, err => {
+    if (err) console.error('Errore nel logging TLGS:', err);
+  });
+}
 
-// 🔁 Ping diagnostico
-router.get('/ping', (req, res) => {
-  res.json({ ping: 'pong', modulo: 'SATELLITE', sincro: 'OK', tempo: Date.now() });
-});
+// 🛰️ POST /satellite/attiva → attiva un modulo remoto
+router.post('/attiva', (req, res) => {
+  const { id, tipo, descrizione } = req.body;
+  const utente = req.headers['x-user'] || 'anonimo';
 
-// 🧠 Connessione sensoriale
-router.post('/sinapsi', (req, res) => {
-  const { pensiero, codiceUtente } = req.body;
-  if (!pensiero || !codiceUtente) {
-    return res.status(400).json({ errore: 'Dati mancanti: pensiero o codiceUtente' });
+  if (!id || !tipo) {
+    logEvent(`❌ Errore da ${utente} - Dati incompleti`);
+    return res.status(400).json({ errore: 'ID e tipo richiesti' });
   }
 
-  const risposta = {
-    modulo: 'SATELLITE',
-    ricezione: '✔️ Pensiero ricevuto',
-    utente: codiceUtente,
-    pensieroTrascritto: pensiero,
-    elaborazione: '🧠 Dato in fase di codifica empatica...',
-    codiceRisposta: 'S-313.OK'
+  // ✅ Simulazione attivazione modulo
+  const statoModulo = {
+    id,
+    tipo,
+    attivo: true,
+    ricevutoDa: utente,
+    descrizione: descrizione || 'Nessuna descrizione fornita',
+    risposta: `Modulo ${id} di tipo ${tipo} attivato correttamente.`,
+    sincronizzato: true,
+    codice: `TLGS-${Date.now()}`
   };
 
-  console.log(`📡 Nuovo pensiero ricevuto da ${codiceUtente}: "${pensiero}"`);
-  res.json(risposta);
+  logEvent(`✅ Attivazione richiesta da ${utente} per ${id} (${tipo})`);
+  res.status(200).json(statoModulo);
 });
 
 module.exports = router;
