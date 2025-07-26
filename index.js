@@ -23,7 +23,7 @@ const attaccoRoutes = require('./routes/attacco');
 const difesaRoutes = require('./routes/difesa');
 const fondiRoutes = require('./routes/fondi');
 const profiloRoutes = require('./routes/profilo');
-const genesisRoutes = require('./routes/genesis'); // ✅ correggi qui (con la "s")
+const genesisRoutes = require('./routes/genesis');
 const satelliteRoutes = require('./routes/satellite');
 const teleRoutes = require('./routes/tele');
 const connessioniRoutes = require('./routes/connessioni');
@@ -46,7 +46,7 @@ app.use('/attacco', attaccoRoutes);
 app.use('/difesa', difesaRoutes);
 app.use('/fondi', fondiRoutes);
 app.use('/profilo', profiloRoutes);
-app.use('/genesis', genesisRoutes); // ✅ stessa cosa qui
+app.use('/genesis', genesisRoutes);
 app.use('/satellite', satelliteRoutes);
 app.use('/tele', teleRoutes);
 app.use('/connessioni', connessioniRoutes);
@@ -57,9 +57,16 @@ moduli.forEach((modulo, index) => {
   app.use(`/modulo${index + 6}`, modulo);
 });
 
-// 📄 Rotta Principale
+// 📄 Rotta Principale (GET)
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// ✅ Rotta di Test (POST) → per Postman
+app.post('/', (req, res) => {
+  const utente = req.body.utente || 'nessuno';
+  console.log(`📩 POST ricevuto da: ${utente}`);
+  res.json({ messaggio: `Ciao ${utente}, il server è vivo e risponde! 🚀` });
 });
 
 // 🔊 Avvio Server
