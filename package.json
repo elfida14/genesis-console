@@ -1,11 +1,14 @@
 {
   "name": "genesis-console",
   "version": "1.0.0",
+  "description": "Sistema console GENESIS - Progetto 313centotre",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "build": "echo \"No build step required\""
   },
+  "author": "Baki",
+  "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
     "express-basic-auth": "^1.2.0"
