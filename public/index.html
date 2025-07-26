@@ -2,14 +2,30 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Genesis 313 Console</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Genesis 313 – Terminale</title>
+  <style>
+    body { background: black; color: #00ff88; font-family: monospace; padding: 20px; }
+    #terminal, #input-section { display: none; }
+    #key-input { background: black; border: 1px solid #00ff88; color: #00ff88; padding: 10px; font-size: 16px; width: 300px; }
+    #terminal { height: 70vh; overflow-y: auto; border: 1px solid #00ff88; padding: 10px; margin-top: 20px; }
+    input[type="text"] { width: 100%; background: black; border: none; color: #00ff88; font-size: 16px; }
+    .line { margin: 5px 0; }
+    .response { color: #77ffcc; margin-left: 10px; }
+  </style>
 </head>
 <body>
-  <div class="console">
-    <pre id="output">🔐 Inserisci la chiave segreta per avviare Genesis 313</pre>
-    <input type="text" id="input" placeholder="Inserisci chiave..." autofocus />
+  <h1>Genesis 313 Accesso Riservato</h1>
+
+  <div id="auth-section">
+    <p>Inserisci la chiave di avvio:</p>
+    <input type="password" id="key-input" placeholder="Chiave segreta..." autofocus />
   </div>
-  <script src="script.js"></script>
+
+  <div id="terminal"></div>
+  <div id="input-section">
+    <input type="text" id="command-input" placeholder="Scrivi comando e premi Invio..." />
+  </div>
+
+  <script src="console.js"></script>
 </body>
 </html>
