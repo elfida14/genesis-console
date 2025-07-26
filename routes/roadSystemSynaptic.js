@@ -2,49 +2,55 @@
 const express = require('express');
 const router = express.Router();
 
-let nodiAttivi = [];
-let incidentiSinaptici = [];
+let nodiSinaptici = [];
+let segnalazioniTraffico = [];
 
-router.post('/attiva-nodo', (req, res) => {
-  const { id, tipo, intensità, origine } = req.body;
+// Endpoint: Aggiungi nodo sinaptico (incrocio strategico o nodo AI)
+router.post('/nodo', (req, res) => {
+  const { id, tipo, coordinate, intensità } = req.body;
 
-  if (!id || !tipo) {
+  if (!id || !tipo || !coordinate) {
     return res.status(400).json({ errore: 'Dati nodo incompleti' });
   }
 
   const nodo = {
     id,
     tipo,
-    intensità,
-    origine,
+    coordinate,
+    intensità: intensità || 'media',
     stato: 'attivo',
-    attivato: new Date().toISOString()
+    timestamp: new Date().toISOString()
   };
 
-  nodiAttivi.push(nodo);
-  console.log(`🧠 Nodo attivo: ${id} | Tipo: ${tipo} | Origine: ${origine}`);
-  res.json({ esito: 'Nodo sinaptico attivato', nodo });
+  nodiSinaptici.push(nodo);
+  console.log(`[🧠 NODO] ID: ${id} | Tipo: ${tipo} | Coord: ${coordinate}`);
+  res.json({ esito: 'Nodo sinaptico registrato', nodo });
 });
 
-router.post('/log-errore', (req, res) => {
-  const { codice, descrizione } = req.body;
-  const incidente = {
-    codice,
+// Endpoint: Registra segnalazione (traffico, blocco, anomalia)
+router.post('/segnalazione', (req, res) => {
+  const { nodoId, descrizione, priorità } = req.body;
+
+  const segnalazione = {
+    nodoId,
     descrizione,
-    ora: new Date().toISOString()
+    priorità: priorità || 'bassa',
+    timestamp: new Date().toISOString()
   };
 
-  incidentiSinaptici.push(incidente);
-  console.warn(`⚠️ Sinapsi errore: ${codice} - ${descrizione}`);
-  res.json({ esito: 'Errore registrato', incidente });
+  segnalazioniTraffico.push(segnalazione);
+  console.log(`[🚨 SEGNALAZIONE] Nodo: ${nodoId} | ${descrizione} | Priorità: ${priorità}`);
+  res.json({ esito: 'Segnalazione ricevuta', segnalazione });
 });
 
+// Endpoint: Lista nodi
 router.get('/nodi', (req, res) => {
-  res.json(nodiAttivi);
+  res.json(nodiSinaptici);
 });
 
-router.get('/incidenti', (req, res) => {
-  res.json(incidentiSinaptici);
+// Endpoint: Lista segnalazioni
+router.get('/segnalazioni', (req, res) => {
+  res.json(segnalazioniTraffico);
 });
 
 module.exports = router;
