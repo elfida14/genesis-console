@@ -23,7 +23,7 @@ const attaccoRoutes = require('./routes/attacco');
 const difesaRoutes = require('./routes/difesa');
 const fondiRoutes = require('./routes/fondi');
 const profiloRoutes = require('./routes/profilo');
-const genesiRoutes = require('./routes/genesi');
+const genesisRoutes = require('./routes/genesis'); // ✅ correggi qui (con la "s")
 const satelliteRoutes = require('./routes/satellite');
 const teleRoutes = require('./routes/tele');
 const connessioniRoutes = require('./routes/connessioni');
@@ -46,7 +46,7 @@ app.use('/attacco', attaccoRoutes);
 app.use('/difesa', difesaRoutes);
 app.use('/fondi', fondiRoutes);
 app.use('/profilo', profiloRoutes);
-app.use('/genesi', genesiRoutes);
+app.use('/genesis', genesisRoutes); // ✅ stessa cosa qui
 app.use('/satellite', satelliteRoutes);
 app.use('/tele', teleRoutes);
 app.use('/connessioni', connessioniRoutes);
