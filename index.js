@@ -1,14 +1,24 @@
-// index.js
 const express = require('express');
 const path = require('path');
 const app = express();
 const PORT = 3130;
 
-// Middleware
+// 🌐 Middleware globale
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Importazione delle rotte avanzate
+// 🛡️ Middleware Sicurezza & Logging
+app.use((req, res, next) => {
+  const utente = req.headers['x-user'] || 'sconosciuto';
+  console.log(`🔐 Richiesta da: ${utente} | ${req.method} ${req.url}`);
+  // Blocca chi non è admin (es: livello 10)
+  if (req.url !== '/' && utente !== 'Baki') {
+    return res.status(403).json({ errore: 'Accesso negato - Livello insufficiente' });
+  }
+  next();
+});
+
+// 📦 Importazione Rotte
 const attaccoRoutes = require('./routes/attacco');
 const difesaRoutes = require('./routes/difesa');
 const fondiRoutes = require('./routes/fondi');
@@ -19,17 +29,17 @@ const teleRoutes = require('./routes/tele');
 const connessioniRoutes = require('./routes/connessioni');
 const comandiRoutes = require('./routes/comandi');
 
-// Altri moduli avanzati (6-19)
+// 🔁 Moduli Avanzati (6-19)
 const moduli = [];
 for (let i = 6; i <= 19; i++) {
   try {
     moduli.push(require(`./routes/modulo${i}`));
   } catch (err) {
-    console.warn(`Modulo ${i} non ancora attivo`);
+    console.warn(`⚠️ Modulo ${i} non attivo`);
   }
 }
 
-// Collegamento delle rotte
+// 🚀 Rotte Attive
 app.use('/attacco', attaccoRoutes);
 app.use('/difesa', difesaRoutes);
 app.use('/fondi', fondiRoutes);
@@ -43,12 +53,12 @@ moduli.forEach((modulo, index) => {
   app.use(`/modulo${index + 6}`, modulo);
 });
 
-// Rotta principale
+// 📄 Rotta Principale
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Avvio del server
+// 🔊 Avvio Server
 app.listen(PORT, () => {
-  console.log(`🌐 Genesis attivo su http://localhost:${PORT}`);
+  console.log(`🧬 GENESIS LIVE → http://localhost:${PORT}`);
 });
