@@ -1,63 +1,54 @@
+// index.js
 const express = require('express');
-const basicAuth = require('express-basic-auth');
-const fs = require('fs');
 const path = require('path');
 const app = express();
-const PORT = process.env.PORT || 3130;
+const PORT = 3130;
 
-// Autenticazione: login sacro Genesis
-app.use(basicAuth({
-  users: { 'genesis': '313centotre' },
-  challenge: true,
-  unauthorizedResponse: '🚫 Accesso negato.'
-}));
-
-// Leggi file statici da /public
-app.use(express.static('public'));
+// Middleware
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Home nascosta dietro login
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '/public/index.html'));
-});
+// Importazione delle rotte avanzate
+const attaccoRoutes = require('./routes/attacco');
+const difesaRoutes = require('./routes/difesa');
+const fondiRoutes = require('./routes/fondi');
+const profiloRoutes = require('./routes/profilo');
+const genesiRoutes = require('./routes/genesi');
+const satelliteRoutes = require('./routes/satellite');
+const teleRoutes = require('./routes/tele');
+const connessioniRoutes = require('./routes/connessioni');
+const comandiRoutes = require('./routes/comandi');
 
-// 🔁 ROUTE COMANDI GENERALI (console)
-app.post('/command', (req, res) => {
-  const { type, data } = req.body;
-  console.log(`🧠 Comando ricevuto: ${type}`, data);
-
-  // 🔁 Elabora qui i comandi ricevuti
-  if (type === 'ATTACCO') {
-    // Codice modulo attacco
-  } else if (type === 'DIFESA') {
-    // Codice modulo difesa
-  } else if (type === 'FONDI') {
-    // Codice per fondi e gestione economica
-  } else if (type === 'PROFILO') {
-    // Gestione profilo utente
-  } else if (type === 'GENESI') {
-    // Modulo Genesi speciale
-  } else {
-    // Comando sconosciuto
-    console.log("❓ Comando non riconosciuto");
+// Altri moduli avanzati (6-19)
+const moduli = [];
+for (let i = 6; i <= 19; i++) {
+  try {
+    moduli.push(require(`./routes/modulo${i}`));
+  } catch (err) {
+    console.warn(`Modulo ${i} non ancora attivo`);
   }
+}
 
-  res.json({ status: 'ricevuto', comando: type });
+// Collegamento delle rotte
+app.use('/attacco', attaccoRoutes);
+app.use('/difesa', difesaRoutes);
+app.use('/fondi', fondiRoutes);
+app.use('/profilo', profiloRoutes);
+app.use('/genesi', genesiRoutes);
+app.use('/satellite', satelliteRoutes);
+app.use('/tele', teleRoutes);
+app.use('/connessioni', connessioniRoutes);
+app.use('/comandi', comandiRoutes);
+moduli.forEach((modulo, index) => {
+  app.use(`/modulo${index + 6}`, modulo);
 });
 
-// 🌐 API interna per visualizzare i moduli attivi
-app.get('/moduli', (req, res) => {
-  res.json({
-    attacco: true,
-    difesa: true,
-    fondi: true,
-    profilo: true,
-    genesi: true,
-    stato: '🟢 Attiva'
-  });
+// Rotta principale
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Avvio server
+// Avvio del server
 app.listen(PORT, () => {
-  console.log(`🚀 Genesis Console attiva sulla porta ${PORT}`);
+  console.log(`🌐 Genesis attivo su http://localhost:${PORT}`);
 });
