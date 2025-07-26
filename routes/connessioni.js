@@ -5,6 +5,9 @@ let connessioniAttive = [];
 
 // 📥 Attiva una nuova connessione
 router.post('/attiva', (req, res) => {
+  console.log('POST /attiva ricevuta');
+  console.log('Body ricevuto:', req.body);
+
   const { id, tipo, descrizione } = req.body;
 
   if (!id || !tipo) {
@@ -37,6 +40,9 @@ router.get('/attive', (req, res) => {
 
 // ❌ Disattiva una connessione
 router.post('/disattiva', (req, res) => {
+  console.log('POST /disattiva ricevuta');
+  console.log('Body ricevuto:', req.body);
+
   const { id } = req.body;
 
   const index = connessioniAttive.findIndex(c => c.id === id);
@@ -58,6 +64,7 @@ router.post('/disattiva', (req, res) => {
 
 // 🔄 Reset connessioni (solo per debug o reset rapido)
 router.post('/reset', (req, res) => {
+  console.log('POST /reset ricevuta');
   connessioniAttive = [];
   console.log('🧹 Tutte le connessioni sono state resettate');
   res.status(200).json({ messaggio: 'Tutte le connessioni sono state resettate 🧹' });
