@@ -1,35 +1,63 @@
-// 🌐 Genesis Console - Server Principale
 const express = require('express');
+const basicAuth = require('express-basic-auth');
+const fs = require('fs');
+const path = require('path');
 const app = express();
-const basicAuth = require('express-basic-auth'); // 🔐 AUTENTICAZIONE
 const PORT = process.env.PORT || 3130;
 
-// 🛡️ Protezione: Username & Password base
+// Autenticazione: login sacro Genesis
 app.use(basicAuth({
-  users: { 'genesis': '313centotre' }, // 🔑 Cambia se vuoi
-  challenge: true, // Mostra popup login
-  unauthorizedResponse: '🚫 Accesso negato. Solo per utenti autorizzati.'
+  users: { 'genesis': '313centotre' },
+  challenge: true,
+  unauthorizedResponse: '🚫 Accesso negato.'
 }));
 
-// 🗂️ Serve file statici da cartella /public (interfaccia visiva)
+// Leggi file statici da /public
 app.use(express.static('public'));
-
-// 🔄 Per gestire richieste JSON
 app.use(express.json());
 
-// 📄 Homepage protetta (index.html)
+// Home nascosta dietro login
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+  res.sendFile(path.join(__dirname, '/public/index.html'));
 });
 
-// 🔧 Ricezione comandi dalla console
+// 🔁 ROUTE COMANDI GENERALI (console)
 app.post('/command', (req, res) => {
   const { type, data } = req.body;
-  console.log('🧠 Comando ricevuto:', type, data);
-  res.json({ status: 'ricevuto', type, data });
+  console.log(`🧠 Comando ricevuto: ${type}`, data);
+
+  // 🔁 Elabora qui i comandi ricevuti
+  if (type === 'ATTACCO') {
+    // Codice modulo attacco
+  } else if (type === 'DIFESA') {
+    // Codice modulo difesa
+  } else if (type === 'FONDI') {
+    // Codice per fondi e gestione economica
+  } else if (type === 'PROFILO') {
+    // Gestione profilo utente
+  } else if (type === 'GENESI') {
+    // Modulo Genesi speciale
+  } else {
+    // Comando sconosciuto
+    console.log("❓ Comando non riconosciuto");
+  }
+
+  res.json({ status: 'ricevuto', comando: type });
 });
 
-// 🚀 Avvio del server
+// 🌐 API interna per visualizzare i moduli attivi
+app.get('/moduli', (req, res) => {
+  res.json({
+    attacco: true,
+    difesa: true,
+    fondi: true,
+    profilo: true,
+    genesi: true,
+    stato: '🟢 Attiva'
+  });
+});
+
+// Avvio server
 app.listen(PORT, () => {
   console.log(`🚀 Genesis Console attiva sulla porta ${PORT}`);
 });
