@@ -28,6 +28,8 @@ const satelliteRoutes = require('./routes/satellite');
 const teleRoutes = require('./routes/tele');
 const connessioniRoutes = require('./routes/connessioni');
 const comandiRoutes = require('./routes/comandi');
+const roadSystemSynapticRoutes = require('./routes/roadSystemSynaptic');
+const shadowRoutes = require('./routes/shadow');
 
 // 🔁 Moduli Avanzati (6-19)
 const moduli = [];
@@ -49,6 +51,8 @@ app.use('/satellite', satelliteRoutes);
 app.use('/tele', teleRoutes);
 app.use('/connessioni', connessioniRoutes);
 app.use('/comandi', comandiRoutes);
+app.use('/road', roadSystemSynapticRoutes);
+app.use('/shadow', shadowRoutes);
 moduli.forEach((modulo, index) => {
   app.use(`/modulo${index + 6}`, modulo);
 });
