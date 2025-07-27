@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const logPath = path.join(__dirname, '../logs/tlgs.log');
 
-router.post('/modulo12/attacco', (req, res) => {
+router.post('/attacco', (req, res) => {
     const bersaglio = req.body.bersaglio;
     const motivo = req.body.motivo || 'inganno sistemico';
     const coscienza = req.body.coscienza || 'oscura';
