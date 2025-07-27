@@ -1,0 +1,9 @@
+{
+  "master_key": "313-GENESIS-∞-SHADOW-KEY",
+  "secret_layer": true,
+  "access_log": [],
+  "commands_history": [],
+  "guardian_phrase": "la_verità_va_detta_con_amore",
+  "activation_phrase": "io sono il Matti",
+  "hidden_paths": ["/shadow", "/core", "/fusione"]
+}
