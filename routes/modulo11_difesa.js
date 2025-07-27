@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const logPath = path.join(__dirname, '../logs/tlgs.log');
 
-router.post('/modulo11/difesa', (req, res) => {
+router.post('/difesa', (req, res) => {
     const tipoMinaccia = req.body.minaccia || 'ignota';
     const livello = req.body.livello || 'medio';
     const statoCoscienza = req.body.coscienza || 'neutrale';
