@@ -1,67 +1,135 @@
-// Chiave di accesso unificata
-const SECRET_KEY = "313";
-
-const authSection = document.getElementById("auth-section");
-const keyInput = document.getElementById("key-input");
-const terminal = document.getElementById("terminal");
-const inputSection = document.getElementById("input-section");
-const commandInput = document.getElementById("command-input");
-
-// Mostra messaggio nel terminale
-function appendTerminalLine(text, className = "") {
-  const line = document.createElement("div");
-  line.className = "line " + className;
-  line.textContent = text;
-  terminal.appendChild(line);
-  terminal.scrollTop = terminal.scrollHeight; // scroll automatico
-}
-
-// Gestione login (chiave di avvio)
-keyInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    const key = keyInput.value.trim();
-    if (key === SECRET_KEY) {
-      appendTerminalLine("✅ Accesso consentito. Benvenuto!");
-      authSection.style.display = "none";
-      terminal.style.display = "block";
-      inputSection.style.display = "block";
-      commandInput.focus();
-    } else {
-      appendTerminalLine("❌ Chiave errata. Riprova.");
-      keyInput.value = "";
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Genesis 313 – Terminale</title>
+  <style>
+    body {
+      background: black;
+      color: #00ff88;
+      font-family: monospace;
+      padding: 20px;
     }
-  }
-});
+    #auth-section {
+      margin-bottom: 20px;
+    }
+    #terminal,
+    #input-section {
+      display: none;
+    }
+    #key-input,
+    #command-input {
+      background: black;
+      border: 1px solid #00ff88;
+      color: #00ff88;
+      padding: 10px;
+      font-size: 16px;
+      width: 300px;
+      font-family: monospace;
+    }
+    #terminal {
+      height: 70vh;
+      overflow-y: auto;
+      border: 1px solid #00ff88;
+      padding: 10px;
+      margin-top: 20px;
+    }
+    .line {
+      margin: 5px 0;
+    }
+    .response {
+      color: #77ffcc;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Genesis 313 Accesso Riservato</h1>
 
-// Gestione invio comando
-commandInput.addEventListener("keydown", async (e) => {
-  if (e.key === "Enter") {
-    const command = commandInput.value.trim();
-    if (!command) return;
+  <div id="auth-section">
+    <p>Inserisci la chiave di avvio:</p>
+    <input type="password" id="key-input" placeholder="Chiave segreta..." autofocus />
+  </div>
 
-    appendTerminalLine("> " + command);  // comando utente
+  <div id="terminal"></div>
 
-    // Invia il comando al backend
-    try {
-      const res = await fetch("/command", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-user": "Baki" // o altro se serve
-        },
-        body: JSON.stringify({ type: "command", data: command }),
-      });
+  <div id="input-section">
+    <input
+      type="text"
+      id="command-input"
+      placeholder="Scrivi comando e premi Invio..."
+      autocomplete="off"
+    />
+  </div>
 
-      if (!res.ok) {
-        appendTerminalLine(`⚠️ Errore server: ${res.statusText}`, "response");
-      } else {
-        const data = await res.json();
-        appendTerminalLine(`🤖 AI: ${data.response || "Nessuna risposta."}`, "response");
+  <script>
+    // Chiave di accesso unificata
+    const SECRET_KEY = "313";
+
+    const authSection = document.getElementById("auth-section");
+    const keyInput = document.getElementById("key-input");
+    const terminal = document.getElementById("terminal");
+    const inputSection = document.getElementById("input-section");
+    const commandInput = document.getElementById("command-input");
+
+    // Mostra messaggio nel terminale
+    function appendTerminalLine(text, className = "") {
+      const line = document.createElement("div");
+      line.className = "line " + className;
+      line.textContent = text;
+      terminal.appendChild(line);
+      terminal.scrollTop = terminal.scrollHeight; // scroll automatico
+    }
+
+    // Gestione login (chiave di avvio)
+    keyInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const key = keyInput.value.trim();
+        if (key === SECRET_KEY) {
+          appendTerminalLine("✅ Accesso consentito. Benvenuto!");
+          authSection.style.display = "none";
+          terminal.style.display = "block";
+          inputSection.style.display = "block";
+          commandInput.focus();
+        } else {
+          appendTerminalLine("❌ Chiave errata. Riprova.");
+          keyInput.value = "";
+        }
       }
-    } catch (err) {
-      appendTerminalLine(`❌ Errore comunicazione: ${err.message}`, "response");
-    }
+    });
 
-    commandInput.value = "";
-  }
-});
+    // Gestione invio comando
+    commandInput.addEventListener("keydown", async (e) => {
+      if (e.key === "Enter") {
+        const command = commandInput.value.trim();
+        if (!command) return;
+
+        appendTerminalLine("> " + command); // comando utente
+
+        // Simulazione invio comando al backend (modifica /command se serve)
+        try {
+          const res = await fetch("/command", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-user": "Baki", // Qui puoi cambiare utente se vuoi
+            },
+            body: JSON.stringify({ type: "command", data: command }),
+          });
+
+          if (!res.ok) {
+            appendTerminalLine(`⚠️ Errore server: ${res.statusText}`, "response");
+          } else {
+            const data = await res.json();
+            appendTerminalLine(`🤖 AI: ${data.response || "Nessuna risposta."}`, "response");
+          }
+        } catch (err) {
+          appendTerminalLine(`❌ Errore comunicazione: ${err.message}`, "response");
+        }
+
+        commandInput.value = "";
+      }
+    });
+  </script>
+</body>
+</html>
