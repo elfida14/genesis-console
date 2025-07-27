@@ -10,7 +10,7 @@ const statoHydro = {
 router.post('/modulo16/fluisci', (req, res) => {
     const { ambiente, pressione, intenzione, codice } = req.body;
 
-    if (codice !== 'BAKI-CODE-313') {
+    if (codice !== 'Genesis313') {
         return res.status(403).json({ errore: 'Codice di accesso invalido.' });
     }
 
