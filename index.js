@@ -41,11 +41,11 @@ let modalitàSegrete = {
   fusioneAI: false
 };
 
-// === Caricamento moduli dinamico
+// === Caricamento moduli da /routes
 const tutteLeRotte = [
   'attacco','comandi','connessioni','difesa','fondi','genesis','modulo7','modulo8','modulo9',
   'modulo10','modulo11-difesa','modulo12-attacco','modulo13-specchio','modulo15-coreIgnis',
-  'modulo16-hydromind','modulo17-occhiodombra','profilo','roadSystemSynaptic','satellite','shadow','tele'
+  'modulo16-hydromind','modulo17-occhiodombra','profilo','roadSystemSynaptic','satellite','tele'
 ];
 tutteLeRotte.forEach(nome => {
   try {
@@ -53,6 +53,17 @@ tutteLeRotte.forEach(nome => {
     app.use(`/${nome}`, route);
   } catch (err) {
     console.error(`❌ Errore caricamento route: ${nome} - ${err.message}`);
+  }
+});
+
+// === Caricamento moduli speciali da /modules (shadow, guardian, fusione, ecc.)
+const moduliSpeciali = ['shadow', 'guardian', 'fusione', 'xgs'];
+moduliSpeciali.forEach(mod => {
+  try {
+    const modulo = require(`./modules/${mod}`);
+    app.use(`/modulo/${mod}`, modulo);
+  } catch (err) {
+    console.error(`⚠️ Errore caricamento modulo speciale: ${mod} - ${err.message}`);
   }
 });
 
