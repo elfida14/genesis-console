@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const logPath = path.join(__dirname, '../logs/tlgs.log');
 
-router.post('/modulo13/specchio', (req, res) => {
+router.post('/specchio', (req, res) => {
     const destinazione = req.body.destinazione || 'ignota';
     const livelloCoscienza = req.body.coscienza || 'protetta';
     const energia = req.body.energia || 'neutrina';
