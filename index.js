@@ -29,10 +29,9 @@ app.use((req, res, next) => {
 });
 
 // === Chiavi e modalità
-function generaChiaveSegreta() {
-  return crypto.randomBytes(16).toString('hex');
-}
-let chiaveMaster = generaChiaveSegreta();
+// FISSA chiave MASTER come richiesto
+let chiaveMaster = 'genesis313';
+
 let modalitàSegrete = {
   linguaggioVivo: false,
   genesisOS: false,
