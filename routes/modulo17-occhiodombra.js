@@ -8,7 +8,7 @@ const ShadowEye = {
     posizione: 'nascosta',
 
     attiva(codiceAccesso) {
-        if (codiceAccesso !== '313CENTOTRE') return false;
+        if (codiceAccesso !== 'Genesis313') return false;
         this.attivo = true;
         this.posizione = 'orbita nascosta';
         return true;
