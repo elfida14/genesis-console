@@ -1,3 +1,6 @@
+const express = require('express');
+const router = express.Router();
+
 const ShadowEye = {
     attivo: false,
     obiettiviTracciati: [],
@@ -41,8 +44,30 @@ const ShadowEye = {
 };
 
 function decrypt(stringa) {
-    // simulazione decrypt (in realtà criptato con chiave 313)
     return `[DECR] ${stringa}`;
 }
 
-module.exports = ShadowEye;
+// ✅ Rotte vere per Express:
+router.post('/attiva', (req, res) => {
+    const { codice } = req.body;
+    const esito = ShadowEye.attiva(codice);
+    res.json({ attivato: esito });
+});
+
+router.post('/traccia', (req, res) => {
+    const { target } = req.body;
+    const esito = ShadowEye.traccia(target);
+    res.json({ esito });
+});
+
+router.post('/log', (req, res) => {
+    const { segreto } = req.body;
+    const esito = ShadowEye.salvaLog(segreto);
+    res.json({ esito });
+});
+
+router.get('/memoria', (req, res) => {
+    res.json(ShadowEye.esportaMemoria());
+});
+
+module.exports = router;
