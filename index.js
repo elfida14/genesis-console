@@ -56,12 +56,16 @@ tutteLeRotte.forEach(nome => {
   }
 });
 
-// === Caricamento MODULI da ./modulus/
-const moduliPersonalizzati = ['shadow', 'fusione', 'guardian'];
+// === Caricamento MODULI da ./modules/
+const moduliPersonalizzati = ['shadow', 'fusione', 'guardian', 'xgs'];
 moduliPersonalizzati.forEach(nome => {
   try {
-    const modulo = require(`./modulus/${nome}`);
-    app.use(`/${nome}`, modulo);
+    const modulo = require(`./modules/${nome}`);
+    if (typeof modulo === 'function') {
+      modulo(app); // supporta export(app) => {...}
+    } else {
+      app.use(`/${nome}`, modulo); // supporta export con router
+    }
   } catch (err) {
     console.error(`⚠️ Modulo personalizzato non caricato: ${nome} - ${err.message}`);
   }
