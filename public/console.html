@@ -8,27 +8,48 @@
     input, textarea { width: 100%; background: #111; color: #0f0; border: 1px solid #0f0; padding: 10px; margin: 10px 0; }
     button { background: #0f0; color: #000; padding: 10px 20px; border: none; cursor: pointer; }
     .response { white-space: pre-wrap; background: #111; padding: 10px; margin-top: 10px; }
+    #console-section { display: none; }
   </style>
 </head>
 <body>
 
-  <h1>GENESIS 313 · Console Attiva</h1>
+  <h1>GENESIS 313 · Accesso Riservato</h1>
+  <div id="auth-section">
+    <label for="key">Inserisci la chiave di avvio:</label>
+    <input type="password" id="key" placeholder="Es. Baki" />
+    <button onclick="autentica()">Invia</button>
+    <div id="auth-message" class="response"></div>
+  </div>
 
-  <label for="modulo">Modulo:</label>
-  <select id="modulo">
-    <option value="modulo11/difesa">Modulo 11 · Difesa</option>
-    <option value="modulo12/attacco">Modulo 12 · Attacco</option>
-    <option value="modulo13/specchio">Modulo 13 · Specchio</option>
-  </select>
+  <div id="console-section">
+    <h2>Console Attiva</h2>
 
-  <label for="payload">Payload JSON:</label>
-  <textarea id="payload" rows="6">{ "minaccia": "esempio", "livello": "alto", "coscienza": "ignota" }</textarea>
+    <label for="modulo">Modulo:</label>
+    <select id="modulo">
+      <option value="modulo11-difesa">Modulo 11 · Difesa</option>
+      <option value="modulo12_attacco">Modulo 12 · Attacco</option>
+      <option value="modulo13_specchio">Modulo 13 · Specchio</option>
+    </select>
 
-  <button onclick="invia()">Invia a GENESIS</button>
+    <label for="payload">Payload JSON:</label>
+    <textarea id="payload" rows="6">{ "minaccia": "esempio", "livello": "alto", "coscienza": "ignota" }</textarea>
 
-  <div class="response" id="rispostaConsole">Risposta:</div>
+    <button onclick="invia()">Invia a GENESIS</button>
+
+    <div class="response" id="rispostaConsole">Risposta:</div>
+  </div>
 
   <script>
+    function autentica() {
+      const key = document.getElementById("key").value.trim();
+      if (key.toLowerCase() === "baki" || key === "GENESYS3.3") {
+        document.getElementById("auth-section").style.display = "none";
+        document.getElementById("console-section").style.display = "block";
+      } else {
+        document.getElementById("auth-message").innerText = "❌ Chiave errata. Riprova.";
+      }
+    }
+
     async function invia() {
       const modulo = document.getElementById("modulo").value;
       const payload = document.getElementById("payload").value;
