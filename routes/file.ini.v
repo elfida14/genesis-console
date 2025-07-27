@@ -1,7 +1,7 @@
 {
-  "master_key": "313-GENESIS-∞-SHADOW-KEY",
-  "guardian_key": "guardian-313-ψΩ",
-  "activation_phrase": "io sono il Matti",
+  "master_key": "Genesis313",
+  "guardian_key": "Genesis313",
+  "activation_phrase": "Genesis313",
   "access_log": [],
   "hidden_paths": [
     "/shadow",
@@ -18,7 +18,7 @@
   "crypto": {
     "enabled": true,
     "method": "SHA-512+AES",
-    "backup_key": "Ω-CENTOTRE-∞-KEY-000",
+    "backup_key": "Genesis313",
     "timestamp": true
   },
   "vision_core": {
