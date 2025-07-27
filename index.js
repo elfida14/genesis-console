@@ -41,7 +41,7 @@ let modalitàSegrete = {
   fusioneAI: false
 };
 
-// === Caricamento moduli da /routes
+// === Caricamento ROUTES standard
 const tutteLeRotte = [
   'attacco','comandi','connessioni','difesa','fondi','genesis','modulo7','modulo8','modulo9',
   'modulo10','modulo11-difesa','modulo12-attacco','modulo13-specchio','modulo15-coreIgnis',
@@ -56,23 +56,23 @@ tutteLeRotte.forEach(nome => {
   }
 });
 
-// === Caricamento moduli speciali da /modules (shadow, guardian, fusione, ecc.)
-const moduliSpeciali = ['shadow', 'guardian', 'fusione', 'xgs'];
-moduliSpeciali.forEach(mod => {
+// === Caricamento MODULI da ./modulus/
+const moduliPersonalizzati = ['shadow', 'fusione', 'guardian'];
+moduliPersonalizzati.forEach(nome => {
   try {
-    const modulo = require(`./modules/${mod}`);
-    app.use(`/modulo/${mod}`, modulo);
+    const modulo = require(`./modulus/${nome}`);
+    app.use(`/${nome}`, modulo);
   } catch (err) {
-    console.error(`⚠️ Errore caricamento modulo speciale: ${mod} - ${err.message}`);
+    console.error(`⚠️ Modulo personalizzato non caricato: ${nome} - ${err.message}`);
   }
 });
 
-// === Root homepage
+// === Homepage
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// === Test base POST
+// === POST base
 app.post('/', (req, res) => {
   const utente = req.body.utente || 'nessuno';
   const messaggio = `📩 POST ricevuto da: ${utente}`;
@@ -81,7 +81,7 @@ app.post('/', (req, res) => {
   res.json({ messaggio: `Ciao ${utente}, il server è vivo e risponde! 🚀` });
 });
 
-// === GENESIS CONSOLE COMANDI
+// === CONSOLE COMANDI GENESIS
 app.post('/command', (req, res) => {
   const { type, data, level, chiave } = req.body;
   const comando = (data || '').toLowerCase();
@@ -96,7 +96,6 @@ app.post('/command', (req, res) => {
   memoria.push(ricordo);
   fs.writeFileSync(memoriaComandiPath, JSON.stringify(memoria, null, 2));
 
-  // === Risposte comandi
   switch (comando) {
     case 'attiva linguaggio vivo':
       modalitàSegrete.linguaggioVivo = true;
@@ -138,7 +137,7 @@ app.post('/command', (req, res) => {
   }
 });
 
-// === Avvio Server
+// === Avvio
 app.listen(PORT, () => {
   console.log(`🛰️ GENESIS 313 online su porta ${PORT}`);
   logStream.write(`[START] ${new Date().toISOString()} - Server su porta ${PORT}\n`);
