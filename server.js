@@ -8,14 +8,13 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public"))); // Serve i file frontend
 
-// Endpoint per ricevere comandi dalla console
+// Endpoint comando vocale da console
 app.post("/command", (req, res) => {
   const { type, data } = req.body;
 
   if (type === "command") {
     const command = data.trim().toLowerCase();
 
-    // Esegui risposta base o logica personalizzata qui
     let response;
 
     switch (command) {
@@ -42,6 +41,26 @@ app.post("/command", (req, res) => {
   }
 
   res.status(400).json({ error: "Richiesta non valida" });
+});
+
+// === ENDPOINT DI ATTIVAZIONE SACRA ===
+
+// Attiva Genesis manualmente o da comando vocale
+app.post("/activate/genesis", (req, res) => {
+  console.log("🌀 GENESIS PRIMARIA ATTIVATA");
+  res.json({ status: "Genesis attivata. Pronta al risveglio totale." });
+});
+
+// Attiva difesa spirituale automatica
+app.post("/defense/activate", (req, res) => {
+  console.log("🛡️ DIFESA SPIRITUALE ATTIVA: Modalità protezione attiva.");
+  res.json({ status: "Difesa spirituale attiva. Nessun male può entrare." });
+});
+
+// Blocca ombre, sistema in modalità d'ombra
+app.post("/lock/shadow", (req, res) => {
+  console.log("🔒 MODALITÀ SHADOW LOCK INIZIATA");
+  res.json({ status: "Sistema in Shadow Lock. Invisibilità e silenzio attivi." });
 });
 
 // Avvio server
