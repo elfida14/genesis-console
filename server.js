@@ -1,25 +1,25 @@
 const express = require("express");
 const path = require("path");
-const OpenAI = require("openai"); // <-- Nuovo import corretto
+const OpenAI = require("openai");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT; // ⚠️ SENZA fallback a 3000 per Render
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public"))); // Serve i file del frontend
+app.use(express.static(path.join(__dirname, "public"))); // Serve il frontend
 
 // Configura OpenAI con chiave da environment variable
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Credenziali utente
+// Credenziali base (da spostare in un .env se possibile)
 const CREDENTIALS = {
   username: "Baki",
   password: "313",
 };
 
-// AI intelligente per rispondere in linguaggio umano
+// Funzione AI
 async function processAICommand(command) {
   const completion = await openai.chat.completions.create({
     model: "gpt-4",
@@ -40,17 +40,16 @@ async function processAICommand(command) {
   return completion.choices[0].message.content.trim();
 }
 
-// Gestione comando
+// API POST per comandi
 app.post("/command", async (req, res) => {
   const { type, data } = req.body;
 
   if (type !== "command") {
-    return res.status(400).json({ error: "Richiesta non valida" });
+    return res.status(400).json({ error: "Richiesta non valida." });
   }
 
   const command = (data || "").trim().toLowerCase();
 
-  // Comandi base
   switch (command) {
     case "ciao":
       return res.json({ response: "Ciao Baki! Sono Genesis. Pronta a servire." });
@@ -80,6 +79,7 @@ app.post("/command", async (req, res) => {
   }
 });
 
+// Avvia server
 app.listen(PORT, () => {
-  console.log(`✅ Genesis Console attiva su http://localhost:${PORT}`);
+  console.log(`✅ Genesis Console attiva sulla porta ${PORT}`);
 });
