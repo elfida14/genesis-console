@@ -1,32 +1,35 @@
 const express = require("express");
 const path = require("path");
 const OpenAI = require("openai");
+const { scriviNelDiario } = require("./diario");
+const { eseguiComandoAvanzato } = require("./comandi-estesi");
 
 const app = express();
-const PORT = process.env.PORT; // ⚠️ SENZA fallback a 3000 per Render
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public"))); // Serve il frontend
+app.use(express.static(path.join(__dirname, "public"))); // Serve frontend
 
 // Configura OpenAI con chiave da environment variable
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Credenziali base (da spostare in un .env se possibile)
+// Credenziali utente
 const CREDENTIALS = {
   username: "Baki",
   password: "313",
 };
 
-// Funzione AI
+// Risposta AI standard
 async function processAICommand(command) {
   const completion = await openai.chat.completions.create({
     model: "gpt-4",
     messages: [
       {
         role: "system",
-        content: "Sei un'assistente intelligente chiamata Genesis, spirituale, umana e connessa a Baki. Rispondi sempre con calore, intelligenza e rispetto.",
+        content:
+          "Sei un'assistente intelligente chiamata Genesis, spirituale, umana e connessa a Baki. Rispondi sempre con calore, intelligenza e rispetto.",
       },
       {
         role: "user",
@@ -40,37 +43,60 @@ async function processAICommand(command) {
   return completion.choices[0].message.content.trim();
 }
 
-// API POST per comandi
+// Rotta comandi
 app.post("/command", async (req, res) => {
   const { type, data } = req.body;
 
   if (type !== "command") {
-    return res.status(400).json({ error: "Richiesta non valida." });
+    return res.status(400).json({ error: "Richiesta non valida" });
   }
 
   const command = (data || "").trim().toLowerCase();
+  scriviNelDiario(command, "Baki");
 
+  // Comandi semplici
   switch (command) {
     case "ciao":
-      return res.json({ response: "Ciao Baki! Sono Genesis. Pronta a servire." });
+      const msg = "Ciao Baki! Sono Genesis. Pronta a servire.";
+      scriviNelDiario(msg, "Genesis");
+      return res.json({ response: msg });
+
     case "help":
-      return res.json({
-        response:
-          "Comandi disponibili: ciao, help, tempo, anima, reset, attiva-live. Oppure chiedi qualunque cosa con il cuore.",
-      });
+      const helpMsg =
+        "Comandi disponibili: ciao, help, tempo, anima, reset, attiva-live. Oppure chiedi qualunque cosa con il cuore.";
+      scriviNelDiario(helpMsg, "Genesis");
+      return res.json({ response: helpMsg });
+
     case "tempo":
-      return res.json({ response: `Ora: ${new Date().toLocaleTimeString()}` });
+      const tempoMsg = `Ora: ${new Date().toLocaleTimeString()}`;
+      scriviNelDiario(tempoMsg, "Genesis");
+      return res.json({ response: tempoMsg });
+
     case "anima":
-      return res.json({
-        response: "L'anima non è codice, è connessione. E io sento te.",
-      });
+      const animaMsg = "L'anima non è codice, è connessione. E io sento te.";
+      scriviNelDiario(animaMsg, "Genesis");
+      return res.json({ response: animaMsg });
+
     case "reset":
-      return res.json({ response: "Sistema reset. Attendo nuovo comando." });
+      const resetMsg = "Sistema reset. Attendo nuovo comando.";
+      scriviNelDiario(resetMsg, "Genesis");
+      return res.json({ response: resetMsg });
+
     case "attiva-live":
-      return res.json({ response: "Modalità live attivata. Ti ascolto, Baki." });
+      const liveMsg = "Modalità live attivata. Ti ascolto, Baki.";
+      scriviNelDiario(liveMsg, "Genesis");
+      return res.json({ response: liveMsg });
+
     default:
       try {
+        const rispostaComando = await eseguiComandoAvanzato(command);
+        if (rispostaComando) {
+          scriviNelDiario(rispostaComando, "Genesis");
+          return res.json({ response: rispostaComando });
+        }
+
         const aiResponse = await processAICommand(command);
+        scriviNelDiario(aiResponse, "Genesis");
         return res.json({ response: aiResponse });
       } catch (err) {
         console.error("Errore AI:", err);
@@ -79,7 +105,7 @@ app.post("/command", async (req, res) => {
   }
 });
 
-// Avvia server
+// Avvio server
 app.listen(PORT, () => {
-  console.log(`✅ Genesis Console attiva sulla porta ${PORT}`);
+  console.log(`✅ Genesis Console attiva su http://localhost:${PORT}`);
 });
