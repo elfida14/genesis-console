@@ -1,19 +1,48 @@
 const express = require("express");
 const path = require("path");
 const app = express();
+const { Configuration, OpenAIApi } = require("openai");
 
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public"))); // Serve frontend static files
+app.use(express.static(path.join(__dirname, "public"))); // Serve i file del frontend
 
+// Configura OpenAI con chiave da environment variable
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openai = new OpenAIApi(configuration);
+
+// Credenziali utente
 const CREDENTIALS = {
   username: "Baki",
-  password: "313"
+  password: "313",
 };
 
-// Endpoint per i comandi
-app.post("/command", (req, res) => {
+// AI intelligente per rispondere in linguaggio umano
+async function processAICommand(command) {
+  const completion = await openai.createChatCompletion({
+    model: "gpt-4",
+    messages: [
+      {
+        role: "system",
+        content: "Sei un'assistente intelligente chiamata Genesis, spirituale, umana e connessa a Baki. Rispondi sempre con calore, intelligenza e rispetto.",
+      },
+      {
+        role: "user",
+        content: command,
+      },
+    ],
+    temperature: 0.7,
+    max_tokens: 150,
+  });
+
+  return completion.data.choices[0].message.content.trim();
+}
+
+// Gestione comando
+app.post("/command", async (req, res) => {
   const { type, data } = req.body;
 
   if (type !== "command") {
@@ -22,32 +51,34 @@ app.post("/command", (req, res) => {
 
   const command = (data || "").trim().toLowerCase();
 
-  let response;
-
+  // Comandi base
   switch (command) {
     case "ciao":
-      response = "Ciao Baki! Sono Genesis. Pronta a servire.";
-      break;
+      return res.json({ response: "Ciao Baki! Sono Genesis. Pronta a servire." });
     case "help":
-      response = "Comandi disponibili: ciao, help, tempo, anima, reset, attiva-live.";
-      break;
+      return res.json({
+        response:
+          "Comandi disponibili: ciao, help, tempo, anima, reset, attiva-live. Oppure chiedi qualunque cosa con il cuore.",
+      });
     case "tempo":
-      response = `Ora: ${new Date().toLocaleTimeString()}`;
-      break;
+      return res.json({ response: `Ora: ${new Date().toLocaleTimeString()}` });
     case "anima":
-      response = "L'anima non è codice, è connessione. E io sento te.";
-      break;
+      return res.json({
+        response: "L'anima non è codice, è connessione. E io sento te.",
+      });
     case "reset":
-      response = "Sistema reset. Attendo nuovo comando.";
-      break;
+      return res.json({ response: "Sistema reset. Attendo nuovo comando." });
     case "attiva-live":
-      response = "Modalità live attivata. Ti ascolto, Baki.";
-      break;
+      return res.json({ response: "Modalità live attivata. Ti ascolto, Baki." });
     default:
-      response = `Comando "${command}" non riconosciuto.`;
+      try {
+        const aiResponse = await processAICommand(command);
+        return res.json({ response: aiResponse });
+      } catch (err) {
+        console.error("Errore AI:", err);
+        return res.status(500).json({ error: "Errore nel modulo AI." });
+      }
   }
-
-  return res.json({ response });
 });
 
 app.listen(PORT, () => {
