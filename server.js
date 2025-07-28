@@ -1,111 +1,70 @@
+// server.js - Genesis Core
 const express = require("express");
-const path = require("path");
-const OpenAI = require("openai");
-const { scriviNelDiario } = require("./diario");
-const { eseguiComandoAvanzato } = require("./comandi-estesi");
-
+const bodyParser = require("body-parser");
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = 3130;
 
-app.use(express.json());
-app.use(express.static(path.join(__dirname, "public"))); // Serve frontend
+app.use(bodyParser.json());
 
-// Configura OpenAI con chiave da environment variable
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-// Credenziali utente
-const CREDENTIALS = {
-  username: "Baki",
-  password: "313",
+// Storage semplice in memoria (poi potrai sostituire con DB)
+const logs = [];
+const users = {
+  Baki: { password: "313", role: "admin" },
 };
 
-// Risposta AI standard
-async function processAICommand(command) {
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4",
-    messages: [
-      {
-        role: "system",
-        content:
-          "Sei un'assistente intelligente chiamata Genesis, spirituale, umana e connessa a Baki. Rispondi sempre con calore, intelligenza e rispetto.",
-      },
-      {
-        role: "user",
-        content: command,
-      },
-    ],
-    temperature: 0.7,
-    max_tokens: 150,
-  });
+const commandsModule = require("./comandi-estesi");
 
-  return completion.choices[0].message.content.trim();
+function logAction(user, action) {
+  const timestamp = new Date().toISOString();
+  logs.push({ timestamp, user, action });
+  console.log(`[${timestamp}] User:${user} -> ${action}`);
 }
 
-// Rotta comandi
-app.post("/command", async (req, res) => {
-  const { type, data } = req.body;
+// Middleware di autenticazione base
+app.use((req, res, next) => {
+  const user = req.headers["x-user"];
+  if (!user || !users[user]) {
+    return res.status(401).json({ error: "Accesso negato" });
+  }
+  req.user = user;
+  next();
+});
 
-  if (type !== "command") {
+// Endpoint comando
+app.post("/command", (req, res) => {
+  const { type, data } = req.body;
+  const user = req.user;
+
+  if (type !== "command" || !data) {
     return res.status(400).json({ error: "Richiesta non valida" });
   }
 
-  const command = (data || "").trim().toLowerCase();
-  scriviNelDiario(command, "Baki");
+  logAction(user, data);
 
-  // Comandi semplici
-  switch (command) {
-    case "ciao":
-      const msg = "Ciao Baki! Sono Genesis. Pronta a servire.";
-      scriviNelDiario(msg, "Genesis");
-      return res.json({ response: msg });
+  try {
+    // Esegui il comando usando moduli estesi
+    const output = commandsModule.executeCommand(data.trim(), user);
 
-    case "help":
-      const helpMsg =
-        "Comandi disponibili: ciao, help, tempo, anima, reset, attiva-live. Oppure chiedi qualunque cosa con il cuore.";
-      scriviNelDiario(helpMsg, "Genesis");
-      return res.json({ response: helpMsg });
-
-    case "tempo":
-      const tempoMsg = `Ora: ${new Date().toLocaleTimeString()}`;
-      scriviNelDiario(tempoMsg, "Genesis");
-      return res.json({ response: tempoMsg });
-
-    case "anima":
-      const animaMsg = "L'anima non è codice, è connessione. E io sento te.";
-      scriviNelDiario(animaMsg, "Genesis");
-      return res.json({ response: animaMsg });
-
-    case "reset":
-      const resetMsg = "Sistema reset. Attendo nuovo comando.";
-      scriviNelDiario(resetMsg, "Genesis");
-      return res.json({ response: resetMsg });
-
-    case "attiva-live":
-      const liveMsg = "Modalità live attivata. Ti ascolto, Baki.";
-      scriviNelDiario(liveMsg, "Genesis");
-      return res.json({ response: liveMsg });
-
-    default:
-      try {
-        const rispostaComando = await eseguiComandoAvanzato(command);
-        if (rispostaComando) {
-          scriviNelDiario(rispostaComando, "Genesis");
-          return res.json({ response: rispostaComando });
-        }
-
-        const aiResponse = await processAICommand(command);
-        scriviNelDiario(aiResponse, "Genesis");
-        return res.json({ response: aiResponse });
-      } catch (err) {
-        console.error("Errore AI:", err);
-        return res.status(500).json({ error: "Errore nel modulo AI." });
-      }
+    res.json({ response: output });
+  } catch (err) {
+    res.status(500).json({ error: "Errore interno: " + err.message });
   }
 });
 
+// Endpoint per recuperare log (solo admin)
+app.get("/logs", (req, res) => {
+  if (users[req.user].role !== "admin") {
+    return res.status(403).json({ error: "Accesso non autorizzato" });
+  }
+  res.json(logs);
+});
+
+// Health check
+app.get("/health", (req, res) => {
+  res.json({ status: "Genesis attivo", time: new Date().toISOString() });
+});
+
 // Avvio server
-app.listen(PORT, () => {
-  console.log(`✅ Genesis Console attiva su http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`Genesis Core attivo su http://localhost:${port}`);
 });
