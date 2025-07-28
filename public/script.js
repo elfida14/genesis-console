@@ -1,4 +1,3 @@
-// Credenziali semplici hardcoded
 const CREDENTIALS = {
   username: "Baki",
   password: "313"
