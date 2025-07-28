@@ -33,15 +33,14 @@ async function sendCommand() {
     const res = await fetch('/command', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'x-user': CREDENTIALS.username
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ type: 'command', data: command })
     });
 
     const data = await res.json();
     if (res.ok) {
-      response.innerText = `🤖 AI: ${data.response || JSON.stringify(data)}`;
+      response.innerText = `🤖 Genesis: ${data.response || "Nessuna risposta."}`;
       status.innerText = "✅ Comando eseguito con successo.";
     } else {
       response.innerText = `⚠️ Errore: ${data.error || 'Risposta non valida.'}`;
@@ -52,3 +51,12 @@ async function sendCommand() {
     status.innerText = "❌ Comando non eseguito.";
   }
 }
+
+// Invio comando anche con Invio da tastiera
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Enter") {
+    if (document.getElementById("control-panel").style.display === "block") {
+      sendCommand();
+    }
+  }
+});
