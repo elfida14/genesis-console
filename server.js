@@ -1,18 +1,17 @@
 const express = require("express");
 const path = require("path");
-const app = express();
-const { Configuration, OpenAIApi } = require("openai");
+const OpenAI = require("openai"); // <-- Nuovo import corretto
 
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public"))); // Serve i file del frontend
 
 // Configura OpenAI con chiave da environment variable
-const configuration = new Configuration({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(configuration);
 
 // Credenziali utente
 const CREDENTIALS = {
@@ -22,7 +21,7 @@ const CREDENTIALS = {
 
 // AI intelligente per rispondere in linguaggio umano
 async function processAICommand(command) {
-  const completion = await openai.createChatCompletion({
+  const completion = await openai.chat.completions.create({
     model: "gpt-4",
     messages: [
       {
@@ -38,7 +37,7 @@ async function processAICommand(command) {
     max_tokens: 150,
   });
 
-  return completion.data.choices[0].message.content.trim();
+  return completion.choices[0].message.content.trim();
 }
 
 // Gestione comando
