@@ -2,105 +2,30 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Genesis 313 – Console</title>
-  <style>
-    body {
-      background: black;
-      color: #00ff88;
-      font-family: monospace;
-      padding: 20px;
-    }
-    #login-section, #control-panel {
-      max-width: 600px;
-      margin: 20px auto;
-    }
-    #control-panel {
-      display: none;
-    }
-    input, button {
-      width: 100%;
-      background: black;
-      border: 1px solid #00ff88;
-      color: #00ff88;
-      font-size: 18px;
-      padding: 10px;
-      box-sizing: border-box;
-      margin-top: 10px;
-    }
-    #device-status, #ai-response {
-      margin-top: 10px;
-      min-height: 30px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <header>
+    <h1>GENESIS 313</h1>
+    <h2>Console di Controllo</h2>
+  </header>
+
   <div id="login-section">
-    <h2>Accesso Genesis 313</h2>
-    <input id="username" placeholder="Username" autocomplete="off" />
+    <input id="username" type="text" placeholder="Username" autocomplete="off" />
     <input id="password" type="password" placeholder="Password" autocomplete="off" />
     <button onclick="login()">Login</button>
     <p id="login-status"></p>
   </div>
 
   <div id="control-panel">
-    <h2>Console di Controllo</h2>
-    <input id="command" placeholder="Inserisci comando e premi Invio" autocomplete="off" />
+    <input id="command" type="text" placeholder="Inserisci comando e premi Invio" autocomplete="off" />
     <button onclick="sendCommand()">Invia Comando</button>
     <p id="device-status"></p>
     <p id="ai-response"></p>
   </div>
 
-  <script>
-    async function login() {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
-
-      if (username === "Baki" && password === "313") {
-        document.getElementById("login-status").textContent = "✅ Accesso riuscito";
-        document.getElementById("login-section").style.display = "none";
-        document.getElementById("control-panel").style.display = "block";
-      } else {
-        document.getElementById("login-status").textContent = "❌ Accesso negato";
-      }
-    }
-
-    async function sendCommand() {
-      const command = document.getElementById("command").value.trim();
-      if (!command) return;
-
-      document.getElementById("device-status").textContent = "⏳ Attivazione...";
-
-      try {
-        const response = await fetch("/command", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ type: "command", data: command })
-        });
-
-        const result = await response.json();
-
-        if (result.response) {
-          document.getElementById("ai-response").textContent = "Genesis: " + result.response;
-          document.getElementById("device-status").textContent = "✅ Comando eseguito";
-        } else {
-          document.getElementById("ai-response").textContent = "⚠️ Nessuna risposta.";
-        }
-      } catch (error) {
-        document.getElementById("ai-response").textContent = "❌ Errore di connessione al server";
-        document.getElementById("device-status").textContent = "🚫 Errore";
-      }
-    }
-
-    // Invio comando anche con Invio da tastiera
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        if (document.getElementById("control-panel").style.display === "block") {
-          sendCommand();
-        }
-      }
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
