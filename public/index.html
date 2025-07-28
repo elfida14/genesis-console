@@ -50,6 +50,57 @@
     <p id="ai-response"></p>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    async function login() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (username === "Baki" && password === "313") {
+        document.getElementById("login-status").textContent = "✅ Accesso riuscito";
+        document.getElementById("login-section").style.display = "none";
+        document.getElementById("control-panel").style.display = "block";
+      } else {
+        document.getElementById("login-status").textContent = "❌ Accesso negato";
+      }
+    }
+
+    async function sendCommand() {
+      const command = document.getElementById("command").value.trim();
+      if (!command) return;
+
+      document.getElementById("device-status").textContent = "⏳ Attivazione...";
+
+      try {
+        const response = await fetch("/command", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ type: "command", data: command })
+        });
+
+        const result = await response.json();
+
+        if (result.response) {
+          document.getElementById("ai-response").textContent = "Genesis: " + result.response;
+          document.getElementById("device-status").textContent = "✅ Comando eseguito";
+        } else {
+          document.getElementById("ai-response").textContent = "⚠️ Nessuna risposta.";
+        }
+      } catch (error) {
+        document.getElementById("ai-response").textContent = "❌ Errore di connessione al server";
+        document.getElementById("device-status").textContent = "🚫 Errore";
+      }
+    }
+
+    // Invio comando anche con Invio da tastiera
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        if (document.getElementById("control-panel").style.display === "block") {
+          sendCommand();
+        }
+      }
+    });
+  </script>
 </body>
 </html>
