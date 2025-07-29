@@ -13,11 +13,11 @@ const NETWORK = bitcoin.networks.bitcoin; // Mainnet
 const API_BASE = "https://blockstream.info/api";
 
 // === GESTIONE CHIAVE CIFRATA ===
-// Percorso assoluto per compatibilità cloud
-const keyPath = path.join(__dirname, "private.key.enc");
+// Cambiato il nome del file in "privateKeyEngine"
+const keyPath = path.join(__dirname, "privateKeyEngine");
 
 if (!fs.existsSync(keyPath)) {
-  throw new Error("❌ File private.key.enc non trovato. Mettilo nella root!");
+  throw new Error("❌ File privateKeyEngine non trovato. Mettilo nella root!");
 }
 
 // Leggi e decripta con password dall’ambiente
@@ -57,7 +57,6 @@ async function sendBTC(destAddress, amountBTC) {
   const fee = 500;
 
   for (const utxo of utxos) {
-    const tx = await axios.get(`${API_BASE}/tx/${utxo.txid}/hex`);
     psbt.addInput({
       hash: utxo.txid,
       index: utxo.vout,
