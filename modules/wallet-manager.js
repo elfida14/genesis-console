@@ -17,4 +17,4 @@ function inviaFondi(tipo, amount, utente = "Baki") {
   return `💸 Inviati ${amount} ${tipo.toUpperCase()} a ${wallet}`;
 }
 
-module.exports = { inviaFondi };
+module.exports = { inviaFondi
