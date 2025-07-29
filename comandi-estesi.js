@@ -1,8 +1,8 @@
 // comandi-estesi.js - Modulo di comando potenziato Genesis
 
+const wallet = require("./modules/wallet-manager");
 const axios = require("axios");
 
-// Stato simulato di dispositivi, ambiente, sensori
 const deviceState = {
   temperature: 22.5,
   humidity: 45,
@@ -11,57 +11,70 @@ const deviceState = {
   lastMessage: "",
 };
 
-// Funzione per eseguire i comandi estesi
 function executeCommand(command, user) {
   command = command.toLowerCase();
 
+  // 🔥 Comandi Wallet
+  if (command.startsWith("preleva") || command.startsWith("invia")) {
+    const parts = command.split(" ");
+    const amount = parts[1];
+    const currency = parts[2];
+    const to = parts[4] || "trust";
+    return wallet.inviaFondi(currency, amount, to);
+  }
+
+  if (command === "saldo") {
+    const saldo = wallet.getSaldoSimulato();
+    return `💰 Saldi attuali:\nBTC: ${saldo.BTC}\nUSDT: ${saldo.USDT}\nETH: ${saldo.ETH}`;
+  }
+
+  // 🌡️ Comandi sistema
   if (command === "status") {
-    return `✅ Stato attuale: Temperatura ${deviceState.temperature}°C, Umidità ${deviceState.humidity}%, Allarme: ${deviceState.alertActive ? "ATTIVO" : "INATTIVO"}`;
+    return `✅ Stato: Temp ${deviceState.temperature}°C, Umidità ${deviceState.humidity}%, Allarme: ${deviceState.alertActive ? "ATTIVO" : "INATTIVO"}`;
   }
 
   if (command === "allarme attiva") {
     deviceState.alertActive = true;
-    return "🚨 Allarme attivato! Tutti i sistemi in allerta.";
+    return "🚨 Allarme attivato!";
   }
 
   if (command === "allarme disattiva") {
     deviceState.alertActive = false;
-    return "✅ Allarme disattivato. Monitoraggio continuo.";
+    return "✅ Allarme disattivato.";
   }
 
   if (command.startsWith("invia messaggio ")) {
     const msg = command.slice(15);
     deviceState.lastMessage = msg;
-    // In futuro potremmo integrare API reali per social, Telegram ecc.
     return `📡 Messaggio inviato: "${msg}"`;
   }
 
   if (command === "intrusione segnalata") {
     deviceState.intrusionDetected = true;
-    return "⚠️ Intrusione rilevata! Preparare difese.";
+    return "⚠️ Intrusione rilevata!";
   }
 
   if (command === "reset intrusioni") {
     deviceState.intrusionDetected = false;
-    return "✅ Stato intrusioni resettato.";
+    return "✅ Intrusioni resettate.";
   }
 
   if (command === "logs") {
-    return "ℹ️ Per visualizzare i log usa l'endpoint /logs con accesso admin.";
+    return "ℹ️ Usa /logs per visualizzare i log.";
   }
 
   if (command === "help") {
-    return `🛠️ Comandi disponibili:
-- status : Stato sistema
+    return `🛠️ Comandi:
+- status / saldo
+- preleva 50 usdt a trust
+- invia 0.001 btc a trust
 - allarme attiva / disattiva
 - invia messaggio [testo]
 - intrusione segnalata
-- reset intrusioni
-- logs
-- help`;
+- reset intrusioni`;
   }
 
-  return "❓ Comando non riconosciuto. Scrivi 'help' per assistenza.";
+  return "❓ Comando non riconosciuto.";
 }
 
 module.exports = { executeCommand };
