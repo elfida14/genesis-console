@@ -1,20 +1,61 @@
-// wallet-manager.js
-const axios = require("axios");
+const bitcoin = require('bitcoinjs-lib');
+const axios = require('axios');
+const NETWORK = bitcoin.networks.bitcoin; // Mainnet
 
-const userWallets = {
-  Baki: {
-    btc: "bc1q5q24gfcju0f2fgfl8w54p3szu9l0qjfa0ykppa",
-    eth: "0x13B30aa6E92F123bF04B8d45f76196566C4359D5",
-    usdt: "0x13B30aa6E92F123bF04B8d45f76196566C4359D5",
-  },
-};
+const API_BASE = 'https://blockstream.info/api';
 
-function inviaFondi(tipo, amount, utente = "Baki") {
-  const wallet = userWallets[utente]?.[tipo.toLowerCase()];
-  if (!wallet) return `❌ Wallet ${tipo} non configurato.`;
+// Recupera chiave privata dal .env
+const WIF = process.env.PRIVKEY_BTC;
+const keyPair = bitcoin.ECPair.fromWIF(WIF, NETWORK);
+const { address } = bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey, network: NETWORK });
 
-  // Simulazione invio — in futuro qui API reale
-  return `💸 Inviati ${amount} ${tipo.toUpperCase()} a ${wallet}`;
+async function getBalance(addr = address) {
+  const res = await axios.get(`${API_BASE}/address/${addr}`);
+  const funded = res.data.chain_stats.funded_txo_sum;
+  const spent = res.data.chain_stats.spent_txo_sum;
+  const balance = (funded - spent) / 1e8;
+  return { address: addr, balance };
 }
 
-module.exports = { inviaFondi
+async function sendBTC(destAddress, amountBTC) {
+  const utxosRes = await axios.get(`${API_BASE}/address/${address}/utxo`);
+  const utxos = utxosRes.data;
+
+  const psbt = new bitcoin.Psbt({ network: NETWORK });
+  let inputSum = 0;
+  const fee = 500; // satoshi
+
+  for (const utxo of utxos) {
+    const tx = await axios.get(`${API_BASE}/tx/${utxo.txid}/hex`);
+    psbt.addInput({
+      hash: utxo.txid,
+      index: utxo.vout,
+      witnessUtxo: {
+        script: Buffer.from(utxo.scriptpubkey, 'hex'),
+        value: utxo.value
+      }
+    });
+    inputSum += utxo.value;
+    if (inputSum > amountBTC * 1e8 + fee) break;
+  }
+
+  const sendValue = Math.floor(amountBTC * 1e8);
+  const change = inputSum - sendValue - fee;
+
+  psbt.addOutput({ address: destAddress, value: sendValue });
+  if (change > 0) {
+    psbt.addOutput({ address, value: change });
+  }
+
+  psbt.signAllInputs(keyPair);
+  psbt.finalizeAllInputs();
+
+  const raw = psbt.extractTransaction().toHex();
+  const sendTx = await axios.post(`${API_BASE}/tx`, raw);
+  return sendTx.data;
+}
+
+module.exports = {
+  getBalance,
+  sendBTC
+};
