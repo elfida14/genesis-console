@@ -1,10 +1,6 @@
-// wallet-manager.js
-
 const bitcoin = require("bitcoinjs-lib");
 const ECPairFactory = require("ecpair").ECPairFactory;
 const tinysecp = require("tiny-secp256k1");
-const fs = require("fs");
-const path = require("path");
 const axios = require("axios");
 const { decryptAES } = require("./crypto-utils");
 
@@ -13,18 +9,22 @@ const NETWORK = bitcoin.networks.bitcoin; // Mainnet
 const API_BASE = "https://blockstream.info/api";
 
 // === GESTIONE CHIAVE CIFRATA ===
-// Cambiato il nome del file in "privateKeyEngine"
-const keyPath = path.join(__dirname, "privateKeyEngine");
+// Rimuoviamo l’uso di file, prendiamo la chiave cifrata e la password da variabili d’ambiente
 
-if (!fs.existsSync(keyPath)) {
-  throw new Error("❌ File privateKeyEngine non trovato. Mettilo nella root!");
+// Leggi la chiave cifrata da variabile d’ambiente base64
+const encKeyBase64 = process.env.PRIVATE_KEY_ENC_BASE64;
+if (!encKeyBase64) {
+  throw new Error("❌ Variabile d'ambiente PRIVATE_KEY_ENC_BASE64 non trovata!");
+}
+// Converti la stringa base64 in Buffer
+const encKey = Buffer.from(encKeyBase64, 'base64');
+
+const password = process.env.PRIVATE_KEY_PASSWORD;
+if (!password) {
+  throw new Error("❌ Variabile d'ambiente PRIVATE_KEY_PASSWORD non trovata!");
 }
 
-// Leggi e decripta con password dall’ambiente
-const encKey = fs.readFileSync(keyPath);
-const password = process.env.PRIVATE_KEY_PASSWORD;
 let WIF;
-
 try {
   WIF = decryptAES(encKey, password);
 } catch (err) {
