@@ -1,14 +1,19 @@
-const bitcoin = require('bitcoinjs-lib');
-const ECPairFactory = require('ecpair').ECPairFactory;
-const tinysecp = require('tiny-secp256k1');
-const axios = require('axios');
+// wallet-manager.js
+const bitcoin = require("bitcoinjs-lib");
+const ECPairFactory = require("ecpair").ECPairFactory;
+const tinysecp = require("tiny-secp256k1");
+const fs = require("fs");
+const axios = require("axios");
+const { decryptAES } = require("./crypto-utils");
 
 const ECPair = ECPairFactory(tinysecp);
 const NETWORK = bitcoin.networks.bitcoin; // Mainnet
-const API_BASE = 'https://blockstream.info/api';
+const API_BASE = "https://blockstream.info/api";
 
-// Recupera chiave privata dal .env
-const WIF = process.env.PRIVKEY_BTC;
+// 🔐 Decripta la chiave privata cifrata
+const encKey = fs.readFileSync("./private.key.enc");
+const password = "GENESIS 3.1.3";
+const WIF = decryptAES(encKey, password);
 const keyPair = ECPair.fromWIF(WIF, NETWORK);
 
 const { address } = bitcoin.payments.p2wpkh({
@@ -30,7 +35,7 @@ async function sendBTC(destAddress, amountBTC) {
 
   const psbt = new bitcoin.Psbt({ network: NETWORK });
   let inputSum = 0;
-  const fee = 500; // satoshi
+  const fee = 500;
 
   for (const utxo of utxos) {
     const tx = await axios.get(`${API_BASE}/tx/${utxo.txid}/hex`);
