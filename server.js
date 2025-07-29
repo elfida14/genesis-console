@@ -4,23 +4,27 @@ const bodyParser = require("body-parser");
 const app = express();
 const port = 3130;
 
+const commandsModule = require("./comandi-estesi");
+const impactModule = require("./modules/impact-engine");
+const deployCommander = require("./modules/deploy-commander");
+const broadcastRoute = require("./routes/genesis-broadcast");
+
 app.use(bodyParser.json());
 
-// Storage semplice in memoria (poi potrai sostituire con DB)
+// 📦 Storage temporaneo in memoria
 const logs = [];
 const users = {
   Baki: { password: "313", role: "admin" },
 };
 
-const commandsModule = require("./comandi-estesi");
-
+// 📋 Log interno
 function logAction(user, action) {
   const timestamp = new Date().toISOString();
   logs.push({ timestamp, user, action });
   console.log(`[${timestamp}] User:${user} -> ${action}`);
 }
 
-// Middleware di autenticazione base
+// 🔐 Middleware autenticazione base
 app.use((req, res, next) => {
   const user = req.headers["x-user"];
   if (!user || !users[user]) {
@@ -30,7 +34,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Endpoint comando
+// ⚙️ Comando AI
 app.post("/command", (req, res) => {
   const { type, data } = req.body;
   const user = req.user;
@@ -42,16 +46,43 @@ app.post("/command", (req, res) => {
   logAction(user, data);
 
   try {
-    // Esegui il comando usando moduli estesi
     const output = commandsModule.executeCommand(data.trim(), user);
-
     res.json({ response: output });
   } catch (err) {
     res.status(500).json({ error: "Errore interno: " + err.message });
   }
 });
 
-// Endpoint per recuperare log (solo admin)
+// 🛰️ Broadcast da AI al mondo
+app.use("/genesis", broadcastRoute);
+
+// 🧬 Impatto diretto (esempio: /impact/manuale)
+app.post("/impact/:azione", async (req, res) => {
+  const user = req.user;
+  const azione = req.params.azione;
+  const payload = req.body;
+
+  try {
+    const result = await impactModule.triggerImpact(azione, payload);
+    logAction(user, `IMPACT → ${azione}`);
+    res.json({ result: result.data || "OK" });
+  } catch (err) {
+    res.status(500).json({ error: "Errore IMPACT: " + err.message });
+  }
+});
+
+// 🧠 Comandi Shell (esempio deploy locale/remoto)
+app.post("/deploy", (req, res) => {
+  const command = req.body.command;
+  if (!command) return res.status(400).json({ error: "Comando mancante" });
+
+  deployCommander.run(command, (err, output) => {
+    if (err) return res.status(500).json({ error: "Deploy fallito: " + err.message });
+    res.json({ output });
+  });
+});
+
+// 🔐 Log accessibili solo da admin
 app.get("/logs", (req, res) => {
   if (users[req.user].role !== "admin") {
     return res.status(403).json({ error: "Accesso non autorizzato" });
@@ -59,12 +90,12 @@ app.get("/logs", (req, res) => {
   res.json(logs);
 });
 
-// Health check
+// 💡 Health check
 app.get("/health", (req, res) => {
   res.json({ status: "Genesis attivo", time: new Date().toISOString() });
 });
 
-// Avvio server
+// 🔊 Avvio
 app.listen(port, () => {
-  console.log(`Genesis Core attivo su http://localhost:${port}`);
+  console.log(`🌐 Genesis Core attivo su http://localhost:${port}`);
 });
