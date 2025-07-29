@@ -1,13 +1,20 @@
 const bitcoin = require('bitcoinjs-lib');
+const ECPairFactory = require('ecpair').ECPairFactory;
+const tinysecp = require('tiny-secp256k1');
 const axios = require('axios');
-const NETWORK = bitcoin.networks.bitcoin; // Mainnet
 
+const ECPair = ECPairFactory(tinysecp);
+const NETWORK = bitcoin.networks.bitcoin; // Mainnet
 const API_BASE = 'https://blockstream.info/api';
 
 // Recupera chiave privata dal .env
 const WIF = process.env.PRIVKEY_BTC;
-const keyPair = bitcoin.ECPair.fromWIF(WIF, NETWORK);
-const { address } = bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey, network: NETWORK });
+const keyPair = ECPair.fromWIF(WIF, NETWORK);
+
+const { address } = bitcoin.payments.p2wpkh({
+  pubkey: keyPair.publicKey,
+  network: NETWORK
+});
 
 async function getBalance(addr = address) {
   const res = await axios.get(`${API_BASE}/address/${addr}`);
