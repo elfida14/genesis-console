@@ -20,9 +20,9 @@ if (!fs.existsSync(keyPath)) {
   throw new Error("❌ File private.key.enc non trovato. Mettilo nella root!");
 }
 
-// Leggi e decripta con password
+// Leggi e decripta con password dall’ambiente
 const encKey = fs.readFileSync(keyPath);
-const password = "GENESIS 3.1.3";
+const password = process.env.PRIVATE_KEY_PASSWORD;
 let WIF;
 
 try {
