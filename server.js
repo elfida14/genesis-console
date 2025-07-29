@@ -19,6 +19,7 @@ function logAction(user, action) {
   console.log(`[${timestamp}] User:${user} -> ${action}`);
 }
 
+// 🔐 Middleware di autenticazione semplice
 app.use((req, res, next) => {
   const user = req.headers["x-user"];
   if (!user || !users[user]) {
@@ -28,6 +29,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// 📦 Controlla saldo BTC
 app.get("/btc/balance", async (req, res) => {
   try {
     const result = await wallet.getBalance();
@@ -38,6 +40,7 @@ app.get("/btc/balance", async (req, res) => {
   }
 });
 
+// 💸 Invia BTC
 app.post("/btc/send", async (req, res) => {
   const { to, amount } = req.body;
   if (!to || !amount) return res.status(400).json({ error: "Dati mancanti" });
@@ -51,10 +54,20 @@ app.post("/btc/send", async (req, res) => {
   }
 });
 
+// 🩺 Health check
 app.get("/health", (req, res) => {
   res.json({ status: "Genesis attivo", time: new Date().toISOString() });
 });
 
+// 🧾 Visualizza log (solo admin)
 app.get("/logs", (req, res) => {
   if (users[req.user].role !== "admin") {
     return res.status(403).json({ error: "Accesso non autorizzato" });
+  }
+  res.json(logs);
+});
+
+// 🚀 Avvio server
+app.listen(port, () => {
+  console.log(`🌐 Genesis Core attivo su http://localhost:${port}`);
+});
