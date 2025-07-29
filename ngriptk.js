@@ -1,1 +1,0 @@
-KxTestExamplePrivateKeyBTC123456789ABCDEFGHJKL
