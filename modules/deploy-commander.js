@@ -1,13 +1,16 @@
-// modules/deploy-commander.js
-const { exec } = require('child_process');
+// deploy-commander.js
+const { exec } = require("child_process");
 
-const deployCommander = {
-  run: (command, callback) => {
-    exec(command, (err, stdout, stderr) => {
-      if (err) return callback(err, null);
-      callback(null, stdout.trim());
-    });
-  }
-};
+function run(command, callback) {
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      callback(error, null);
+    } else if (stderr) {
+      callback(new Error(stderr), null);
+    } else {
+      callback(null, stdout);
+    }
+  });
+}
 
-module.exports = deployCommander;
+module.exports = { run };
