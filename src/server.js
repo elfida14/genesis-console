@@ -1,12 +1,16 @@
 // server.js - Genesis Core
 const express = require("express");
 const bodyParser = require("body-parser");
+const path = require("path");
 const app = express();
 const port = 3130;
 
 const wallet = require("./wallet-manager");
 
 app.use(bodyParser.json());
+
+// Static files (serve public/index.html, public/index.js ecc.)
+app.use(express.static(path.join(__dirname, "../public")));
 
 const logs = [];
 const users = {
