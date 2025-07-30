@@ -1,61 +1,67 @@
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #121212;
-    color: #eee;
-    margin: 0;
-    padding: 0;
+  font-family: 'Courier New', monospace;
+  background-color: #0d0d0d;
+  color: #00ff99;
+  padding: 30px;
+  margin: 0;
 }
 
-header {
-    background-color: #1e1e1e;
-    padding: 20px;
-    text-align: center;
-    border-bottom: 2px solid #333;
+.container {
+  max-width: 800px;
+  margin: auto;
 }
 
-h1, h2 {
-    margin: 0 0 15px 0;
-    color: #00ffcc;
+h1 {
+  text-align: center;
+  color: #00ff99;
 }
 
-#login-section, #control-panel {
-    max-width: 400px;
-    margin: 30px auto;
-    padding: 20px;
-    background-color: #222;
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0, 255, 200, 0.3);
+form {
+  display: flex;
+  margin-top: 20px;
 }
 
-input[type="text"], input[type="password"] {
-    width: 100%;
-    padding: 12px;
-    margin: 10px 0 20px 0;
-    border: none;
-    border-radius: 5px;
-    background-color: #111;
-    color: #0ff;
-    font-size: 16px;
+input[type="text"] {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #00ff99;
+  background-color: #000;
+  color: #00ff99;
 }
 
 button {
-    width: 100%;
-    padding: 12px;
-    background-color: #00ffcc;
-    border: none;
-    border-radius: 5px;
-    font-weight: bold;
-    color: black;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  background-color: #00ff99;
+  color: #000;
+  border: none;
+  padding: 10px 20px;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
 button:hover {
-    background-color: #00cc99;
+  background-color: #00cc77;
 }
 
-#login-status, #device-status, #ai-response {
-    margin-top: 15px;
-    font-style: italic;
-    color: #0ff;
+.button-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+#output {
+  margin-top: 30px;
+  border-top: 1px solid #00ff99;
+  padding-top: 20px;
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+
+.success {
+  color: #00ff99;
+}
+
+.error {
+  color: #ff0033;
 }
