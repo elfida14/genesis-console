@@ -1,5 +1,4 @@
-// server.js - Genesis Core (solo Revolut attivo)
-
+// server.js - Genesis Core
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
@@ -13,7 +12,7 @@ const users = {
 };
 
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, "../public")));
+app.use(express.static(path.join(__dirname, "public")));
 
 // 🔐 Middleware autenticazione
 app.use((req, res, next) => {
