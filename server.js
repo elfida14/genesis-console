@@ -17,13 +17,10 @@ function isAuthorized(req) {
   return req.headers['x-user'] === process.env.GENESIS_USER;
 }
 
-// COMANDO CONSOLE
+// ✅ ROTTA COMANDI PRINCIPALI
 app.post('/command', async (req, res) => {
   const { command, data } = req.body;
-
-  if (!isAuthorized(req)) {
-    return res.status(401).json({ success: false, error: 'Accesso negato.' });
-  }
+  if (!isAuthorized(req)) return res.status(401).json({ success: false, error: 'Accesso negato.' });
 
   try {
     let result;
@@ -35,9 +32,7 @@ app.post('/command', async (req, res) => {
         break;
 
       case 'sendbtc':
-        if (!data || !data.to || !data.amount) {
-          throw new Error('Dati di invio incompleti.');
-        }
+        if (!data || !data.to || !data.amount) throw new Error('Dati di invio incompleti.');
         const tx = await walletManager.sendBTC(data.to, data.amount);
         result = { success: true, txid: tx };
         break;
@@ -52,9 +47,7 @@ app.post('/command', async (req, res) => {
         break;
 
       case 'revolut':
-        if (!data || !data.amount) {
-          throw new Error('Dati incompleti per Revolut.');
-        }
+        if (!data || !data.amount) throw new Error('Dati incompleti per Revolut.');
         const note = data.note || "—";
         await paymentEngine.sendNotification(data.amount, note);
         result = { success: true, message: 'Notifica inviata per bonifico.' };
@@ -71,30 +64,32 @@ app.post('/command', async (req, res) => {
   }
 });
 
-// API DIRETTA: /api/revolut
-app.post('/api/revolut', async (req, res) => {
-  try {
-    const { amount, note } = req.body;
-    if (!amount) return res.status(400).send("Importo mancante.");
-    await paymentEngine.sendNotification(amount, note || "—");
-    res.send("Notifica inviata correttamente.");
-  } catch (err) {
-    console.error('Errore Revolut:', err);
-    res.status(500).send("Errore invio Revolut: " + err.message);
-  }
-});
-
-// API DIRETTA: /api/coupon
+// ✅ ROTTA INVIO COUPON
 app.post('/api/coupon', (req, res) => {
+  if (!isAuthorized(req)) return res.status(401).json({ success: false, message: "Accesso negato" });
+
   const { code } = req.body;
   if (code === process.env.COUPON_SECRET) {
-    res.json({ success: true, message: "✅ Codice accettato. Comandi sbloccati." });
+    return res.json({ success: true, message: "Coupon attivato con successo." });
   } else {
-    res.json({ success: false, message: "❌ Codice non valido." });
+    return res.status(403).json({ success: false, message: "Codice coupon errato." });
   }
 });
 
-// Email sender
+// ✅ ROTTA INVIO REVOLUT
+app.post('/api/revolut', async (req, res) => {
+  if (!isAuthorized(req)) return res.status(401).send("Accesso negato");
+
+  const { amount, note } = req.body;
+  try {
+    await paymentEngine.sendNotification(amount, note || "—");
+    res.send(`Notifica inviata per €${amount}`);
+  } catch (err) {
+    res.status(500).send("Errore invio Revolut");
+  }
+});
+
+// ✅ FUNZIONE EMAIL
 function sendMail(data) {
   return new Promise((resolve, reject) => {
     const transporter = nodemailer.createTransport({
