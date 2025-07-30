@@ -17,6 +17,7 @@ function isAuthorized(req) {
   return req.headers['x-user'] === process.env.GENESIS_USER;
 }
 
+// COMANDO CONSOLE
 app.post('/command', async (req, res) => {
   const { command, data } = req.body;
 
@@ -70,6 +71,30 @@ app.post('/command', async (req, res) => {
   }
 });
 
+// API DIRETTA: /api/revolut
+app.post('/api/revolut', async (req, res) => {
+  try {
+    const { amount, note } = req.body;
+    if (!amount) return res.status(400).send("Importo mancante.");
+    await paymentEngine.sendNotification(amount, note || "—");
+    res.send("Notifica inviata correttamente.");
+  } catch (err) {
+    console.error('Errore Revolut:', err);
+    res.status(500).send("Errore invio Revolut: " + err.message);
+  }
+});
+
+// API DIRETTA: /api/coupon
+app.post('/api/coupon', (req, res) => {
+  const { code } = req.body;
+  if (code === process.env.COUPON_SECRET) {
+    res.json({ success: true, message: "✅ Codice accettato. Comandi sbloccati." });
+  } else {
+    res.json({ success: false, message: "❌ Codice non valido." });
+  }
+});
+
+// Email sender
 function sendMail(data) {
   return new Promise((resolve, reject) => {
     const transporter = nodemailer.createTransport({
