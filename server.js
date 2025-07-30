@@ -4,24 +4,19 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const walletManager = require('./walletManager');
 const paymentEngine = require('./paymentEngine');
-const { sendNotification } = require('./paymentEngine');
 const nodemailer = require('nodemailer');
-const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-// 🔐 Autenticazione base
 function isAuthorized(req) {
   return req.headers['x-user'] === process.env.GENESIS_USER;
 }
 
-// 🔁 COMANDI PRINCIPALI
 app.post('/command', async (req, res) => {
   const { command, data } = req.body;
 
@@ -57,10 +52,11 @@ app.post('/command', async (req, res) => {
 
       case 'revolut':
         if (!data || !data.amount) {
-          throw new Error("Importo mancante.");
+          throw new Error('Dati incompleti per Revolut.');
         }
-        await sendNotification(data.amount, data.note || 'Manuale da comando');
-        result = { success: true, message: `Notifica inviata per €${data.amount}` };
+        const note = data.note || "—";
+        await paymentEngine.sendNotification(data.amount, note);
+        result = { success: true, message: 'Notifica inviata per bonifico.' };
         break;
 
       default:
@@ -74,7 +70,6 @@ app.post('/command', async (req, res) => {
   }
 });
 
-// 📬 Email (supporto interno)
 function sendMail(data) {
   return new Promise((resolve, reject) => {
     const transporter = nodemailer.createTransport({
@@ -99,10 +94,6 @@ function sendMail(data) {
   });
 }
 
-// 🔗 ROUTES AGGIUNTIVE
-app.use('/api/coupon', require('./routes/coupon'));
-
-// 🌍 Avvio Server
 app.listen(PORT, () => {
   console.log(`🌐 Genesis Console attiva sulla porta ${PORT}`);
 });
