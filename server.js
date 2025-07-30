@@ -1,70 +1,95 @@
-// server.js – Genesis Entry Point
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const bodyParser = require('body-parser');
-const cors = require('cors');
 require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const walletManager = require('./walletManager');
+const paymentEngine = require('./paymentEngine');
+const nodemailer = require('nodemailer');
 
 const app = express();
-const PORT = process.env.PORT || 3130;
+const PORT = process.env.PORT || 3000;
 
-// Middlewares
 app.use(cors());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
-// Logging
-const log = (msg) => {
-    const logMessage = `[${new Date().toISOString()}] ${msg}\n`;
-    fs.appendFileSync('./logs/tlgs.log', logMessage);
-    console.log(logMessage);
-};
+function isAuthorized(req) {
+  return req.headers['x-user'] === process.env.GENESIS_USER;
+}
 
-// ROOT
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+app.post('/command', async (req, res) => {
+  const { command, data } = req.body;
 
-// ROUTES
-const routes = [
-    'fondi',
-    'genesis',
-    'comandi',
-    'profilo',
-    'activation-lock',
-    'genesis-broadcast',
-    'impact-router',
-    'attacco',
-    'difesa',
-    'connessioni',
-    'modulo7',
-    'modulo8',
-    'modulo9',
-    'modulo10',
-    'modulo11-difesa',
-    'modulo12-attacco',
-    'modulo13-specchio',
-    'modulo15-coreIgnis',
-    'modulo16-hydromind',
-    'modulo17-occhiodombra',
-    'tele',
-    'satellite',
-    'roadSystemSynaptic'
-];
+  if (!isAuthorized(req)) {
+    return res.status(401).json({ success: false, error: 'Accesso negato.' });
+  }
 
-routes.forEach((route) => {
-    const routePath = path.join(__dirname, 'routes', `${route}.js`);
-    if (fs.existsSync(routePath)) {
-        app.use(`/api/${route}`, require(routePath));
-        log(`Route /api/${route} loaded.`);
-    } else {
-        log(`Route /api/${route} missing.`);
+  try {
+    let result;
+
+    switch (command.toLowerCase()) {
+      case 'status':
+        const balance = await walletManager.getBalance();
+        result = { status: 'online', balance: `${balance} BTC` };
+        break;
+
+      case 'sendbtc':
+        if (!data || !data.to || !data.amount) {
+          throw new Error('Dati di invio incompleti.');
+        }
+        const tx = await walletManager.sendBTC(data.to, data.amount);
+        result = { success: true, txid: tx };
+        break;
+
+      case 'ping':
+        result = { pong: true };
+        break;
+
+      case 'sendmail':
+        await sendMail(data);
+        result = { success: true, message: 'Email inviata con successo.' };
+        break;
+
+      case 'revolut':
+        const log = await paymentEngine.prepareRevolutTransfer(data);
+        result = { success: true, log };
+        break;
+
+      default:
+        throw new Error(`Comando sconosciuto: ${command}`);
     }
+
+    res.json({ success: true, result });
+  } catch (err) {
+    console.error('Errore comando:', command, err);
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
-// START SERVER
+function sendMail(data) {
+  return new Promise((resolve, reject) => {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    const mailOptions = {
+      from: `"Genesis Notifier" <${process.env.EMAIL_USER}>`,
+      to: data.to,
+      subject: data.subject || 'Messaggio da Genesis',
+      text: data.body || 'Contenuto non specificato.'
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) reject(error);
+      else resolve(info);
+    });
+  });
+}
+
 app.listen(PORT, () => {
-    log(`🚀 GENESIS Console attiva su PORT ${PORT}`);
+  console.log(`🌐 Genesis Console attiva sulla porta ${PORT}`);
 });
