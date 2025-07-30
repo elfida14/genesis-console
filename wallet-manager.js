@@ -1,38 +1,44 @@
+// walletManager.js
+
 const bitcoin = require("bitcoinjs-lib");
 const ECPairFactory = require("ecpair").ECPairFactory;
 const tinysecp = require("tiny-secp256k1");
 const axios = require("axios");
-const { decryptAES } = require("./crypto-utils");
+const crypto = require("crypto");
 
 const ECPair = ECPairFactory(tinysecp);
 const NETWORK = bitcoin.networks.bitcoin; // Mainnet
 const API_BASE = "https://blockstream.info/api";
 
-// === GESTIONE CHIAVE CIFRATA ===
-// Rimuoviamo l’uso di file, prendiamo la chiave cifrata e la password da variabili d’ambiente
+// === FUNZIONE DECRIPT AES ===
+function decryptAES(encKeyBuffer, password) {
+  const iv = encKeyBuffer.subarray(0, 16);
+  const ciphertext = encKeyBuffer.subarray(16);
 
-// Leggi la chiave cifrata da variabile d’ambiente base64
-const encKeyBase64 = process.env.PRIVATE_KEY_ENC_BASE64;
-if (!encKeyBase64) {
-  throw new Error("❌ Variabile d'ambiente PRIVATE_KEY_ENC_BASE64 non trovata!");
+  const key = crypto.scryptSync(password, 'salt', 32);
+  const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+
+  const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+  return decrypted.toString('utf8');
 }
-// Converti la stringa base64 in Buffer
-const encKey = Buffer.from(encKeyBase64, 'base64');
+
+// === CHIAVE PRIVATA CIFRATA DA VARIABILE ===
+const encKeyBase64 = process.env.PRIVATE_KEY_ENC_BASE64;
+if (!encKeyBase64) throw new Error("❌ Variabile PRIVATE_KEY_ENC_BASE64 non trovata");
 
 const password = process.env.PRIVATE_KEY_PASSWORD;
-if (!password) {
-  throw new Error("❌ Variabile d'ambiente PRIVATE_KEY_PASSWORD non trovata!");
-}
+if (!password) throw new Error("❌ Variabile PRIVATE_KEY_PASSWORD non trovata");
+
+const encKey = Buffer.from(encKeyBase64, 'base64');
 
 let WIF;
 try {
   WIF = decryptAES(encKey, password);
 } catch (err) {
-  throw new Error("❌ Errore durante la decifratura della chiave privata. Controlla la password.");
+  throw new Error("❌ Errore nella decriptazione della chiave privata");
 }
 
 const keyPair = ECPair.fromWIF(WIF, NETWORK);
-
 const { address } = bitcoin.payments.p2wpkh({
   pubkey: keyPair.publicKey,
   network: NETWORK
@@ -87,5 +93,6 @@ async function sendBTC(destAddress, amountBTC) {
 
 module.exports = {
   getBalance,
-  sendBTC
+  sendBTC,
+  address,
 };
