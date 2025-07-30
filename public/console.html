@@ -24,7 +24,10 @@
       const note = prompt("Inserisci una nota per l'invio:");
       const res = await fetch("/api/revolut", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-user": "GENESIS313" // opzionale: se hai auth server
+        },
         body: JSON.stringify({ amount, note })
       });
       const result = await res.text();
