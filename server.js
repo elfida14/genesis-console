@@ -1,4 +1,5 @@
-// server.js - Genesis Core
+// server.js - Genesis Core (solo Revolut attivo)
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
