@@ -4,39 +4,14 @@ const bitcoin = require("bitcoinjs-lib");
 const ECPairFactory = require("ecpair").ECPairFactory;
 const tinysecp = require("tiny-secp256k1");
 const axios = require("axios");
-const crypto = require("crypto");
 
 const ECPair = ECPairFactory(tinysecp);
 const NETWORK = bitcoin.networks.bitcoin; // Mainnet
 const API_BASE = "https://blockstream.info/api";
 
-// === FUNZIONE DECRIPT AES ===
-function decryptAES(encKeyBuffer, password) {
-  const iv = encKeyBuffer.subarray(0, 16);
-  const ciphertext = encKeyBuffer.subarray(16);
-
-  const key = crypto.scryptSync(password, 'salt', 32);
-  const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-
-  const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
-  return decrypted.toString('utf8');
-}
-
-// === CHIAVE PRIVATA CIFRATA DA VARIABILE ===
-const encKeyBase64 = process.env.PRIVATE_KEY_ENC_BASE64;
-if (!encKeyBase64) throw new Error("❌ Variabile PRIVATE_KEY_ENC_BASE64 non trovata");
-
-const password = process.env.PRIVATE_KEY_PASSWORD;
-if (!password) throw new Error("❌ Variabile PRIVATE_KEY_PASSWORD non trovata");
-
-const encKey = Buffer.from(encKeyBase64, 'base64');
-
-let WIF;
-try {
-  WIF = decryptAES(encKey, password);
-} catch (err) {
-  throw new Error("❌ Errore nella decriptazione della chiave privata");
-}
+// === CHIAVE PRIVATA DIRETTA ===
+const WIF = process.env.PRIVATE_KEY_WIF;
+if (!WIF) throw new Error("❌ Variabile PRIVATE_KEY_WIF non trovata!");
 
 const keyPair = ECPair.fromWIF(WIF, NETWORK);
 const { address } = bitcoin.payments.p2wpkh({
