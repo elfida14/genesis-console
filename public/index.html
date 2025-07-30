@@ -2,30 +2,29 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Genesis 313 – Console</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Genesis Console</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>GENESIS 313</h1>
-    <h2>Console di Controllo</h2>
-  </header>
+  <div class="container">
+    <h1>🧠 GENESIS CONSOLE 313</h1>
 
-  <div id="login-section">
-    <input id="username" type="text" placeholder="Username" autocomplete="off" />
-    <input id="password" type="password" placeholder="Password" autocomplete="off" />
-    <button onclick="login()">Login</button>
-    <p id="login-status"></p>
+    <div class="button-group">
+      <button data-cmd="status">Status</button>
+      <button data-cmd="ping">Ping</button>
+      <button data-cmd="sendBTC">Invia BTC</button>
+      <button data-cmd="revolut">Revolut</button>
+    </div>
+
+    <form id="commandForm">
+      <input type="text" id="commandInput" placeholder="Scrivi un comando personalizzato…" />
+      <button type="submit">Invia Comando</button>
+    </form>
+
+    <div id="output"></div>
   </div>
 
-  <div id="control-panel">
-    <input id="command" type="text" placeholder="Inserisci comando e premi Invio" autocomplete="off" />
-    <button onclick="sendCommand()">Invia Comando</button>
-    <p id="device-status"></p>
-    <p id="ai-response"></p>
-  </div>
-
-  <script src="script.js"></script>
+  <script src="main.js"></script>
 </body>
-</html
+</html>
