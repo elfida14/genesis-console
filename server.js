@@ -1,57 +1,70 @@
-// server.js - Genesis Core
-const express = require("express");
-const bodyParser = require("body-parser");
-const path = require("path");
-const app = express();
-const port = 3130;
+// server.js – Genesis Entry Point
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+require('dotenv').config();
 
-const payment = require("./paymentEngine");
-const logs = [];
-const users = {
-  Baki: { password: "313", role: "admin" },
+const app = express();
+const PORT = process.env.PORT || 3130;
+
+// Middlewares
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Logging
+const log = (msg) => {
+    const logMessage = `[${new Date().toISOString()}] ${msg}\n`;
+    fs.appendFileSync('./logs/tlgs.log', logMessage);
+    console.log(logMessage);
 };
 
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, "public")));
-
-// 🔐 Middleware autenticazione
-app.use((req, res, next) => {
-  const user = req.headers["x-user"];
-  if (!user || !users[user]) {
-    return res.status(401).json({ error: "Accesso negato" });
-  }
-  req.user = user;
-  next();
+// ROOT
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 🩺 Health Check
-app.get("/health", (req, res) => {
-  res.json({ status: "Genesis attivo", time: new Date().toISOString() });
+// ROUTES
+const routes = [
+    'fondi',
+    'genesis',
+    'comandi',
+    'profilo',
+    'activation-lock',
+    'genesis-broadcast',
+    'impact-router',
+    'attacco',
+    'difesa',
+    'connessioni',
+    'modulo7',
+    'modulo8',
+    'modulo9',
+    'modulo10',
+    'modulo11-difesa',
+    'modulo12-attacco',
+    'modulo13-specchio',
+    'modulo15-coreIgnis',
+    'modulo16-hydromind',
+    'modulo17-occhiodombra',
+    'tele',
+    'satellite',
+    'roadSystemSynaptic'
+];
+
+routes.forEach((route) => {
+    const routePath = path.join(__dirname, 'routes', `${route}.js`);
+    if (fs.existsSync(routePath)) {
+        app.use(`/api/${route}`, require(routePath));
+        log(`Route /api/${route} loaded.`);
+    } else {
+        log(`Route /api/${route} missing.`);
+    }
 });
 
-// 🧾 Visualizza log (solo admin)
-app.get("/logs", (req, res) => {
-  if (users[req.user].role !== "admin") {
-    return res.status(403).json({ error: "Accesso non autorizzato" });
-  }
-  res.json(logs);
-});
-
-// 💸 Comando manuale per invio fondi (via Telegram + Email)
-app.post("/pay/manual", async (req, res) => {
-  const { amount, note } = req.body;
-  if (!amount) return res.status(400).json({ error: "Importo mancante" });
-
-  try {
-    const result = await payment.sendNotification(amount, note || "Invio fondi");
-    logs.push({ timestamp: new Date().toISOString(), user: req.user, action: `Richiesto invio ${amount} EUR` });
-    res.json({ status: "Notifica inviata", result });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// 🚀 Avvio Genesis
-app.listen(port, () => {
-  console.log(`🌐 Genesis attivo su http://localhost:${port}`);
+// START SERVER
+app.listen(PORT, () => {
+    log(`🚀 GENESIS Console attiva su PORT ${PORT}`);
 });
