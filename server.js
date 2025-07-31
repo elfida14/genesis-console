@@ -1,112 +1,56 @@
-require('dotenv').config();
+// server.js
 const express = require('express');
-const cors = require('cors');
+const path = require('path');
 const bodyParser = require('body-parser');
-const walletManager = require('./walletManager'); // BTC disattivato per ora
-const paymentRouter = require('./src/paymentEngine'); // <-- Cambiato nome per chiarezza
-const nodemailer = require('nodemailer');
-
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3133;
 
-app.use(cors());
+// Sicurezza base
+const AUTH_KEY = 'shadow313-core';
+
+// Middlewares
 app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// ✅ MOUNT ROUTES
-app.use('/api/revolut', paymentRouter); // usa il router di paymentEngine
-
-// ✅ AUTORIZZAZIONE
-function isAuthorized(req) {
-  return req.headers['x-user'] === process.env.GENESIS_USER;
-}
-
-// ✅ ROTTA COMANDI
-app.post('/command', async (req, res) => {
-  const { command, data } = req.body;
-  if (!isAuthorized(req)) return res.status(401).json({ success: false, error: 'Accesso negato.' });
-
-  try {
-    let result;
-
-    switch (command.toLowerCase()) {
-      case 'status':
-        const balance = await walletManager.getBalance();
-        result = { status: 'online', balance: `${balance} BTC` };
-        break;
-
-      case 'sendbtc':
-        if (!data || !data.to || !data.amount) throw new Error('Dati di invio incompleti.');
-        const tx = await walletManager.sendBTC(data.to, data.amount);
-        result = { success: true, txid: tx };
-        break;
-
-      case 'ping':
-        result = { pong: true };
-        break;
-
-      case 'sendmail':
-        await sendMail(data);
-        result = { success: true, message: 'Email inviata con successo.' };
-        break;
-
-      case 'revolut':
-        if (!data || !data.amount) throw new Error('Dati incompleti per Revolut.');
-        const note = data.note || "—";
-
-        // Simula chiamata locale come se fosse una richiesta POST a /api/revolut
-        req.body = { amount: data.amount, note };
-        return app._router.handle(req, res, () => {}); // forward interno
-        break;
-
-      default:
-        throw new Error(`Comando sconosciuto: ${command}`);
-    }
-
-    res.json({ success: true, result });
-  } catch (err) {
-    console.error('Errore comando:', command, err);
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// ✅ COUPON
-app.post('/api/coupon', (req, res) => {
-  if (!isAuthorized(req)) return res.status(401).json({ success: false, message: "Accesso negato" });
-
-  const { code } = req.body;
-  if (code === process.env.COUPON_SECRET) {
-    return res.json({ success: true, message: "Coupon attivato con successo." });
+// Autenticazione semplice via header
+app.use((req, res, next) => {
+  const userKey = req.headers['x-user'];
+  if (userKey && userKey === AUTH_KEY) {
+    next();
   } else {
-    return res.status(403).json({ success: false, message: "Codice coupon errato." });
+    res.status(403).json({ error: 'Unauthorized' });
   }
 });
 
-// ✅ EMAIL
-function sendMail(data) {
-  return new Promise((resolve, reject) => {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
+// === ROUTES === //
+app.use('/api/attacco', require('./routes/attacco'));
+app.use('/api/difesa', require('./routes/difesa'));
+app.use('/api/impact', require('./routes/impact-router'));
+app.use('/api/coupon', require('./routes/coupon'));
+app.use('/api/modulo', require('./routes/modulo10–17'));
+app.use('/api/road', require('./routes/roadSystemSynaptic'));
 
-    const mailOptions = {
-      from: `"Genesis Notifier" <${process.env.EMAIL_USER}>`,
-      to: data.to,
-      subject: data.subject || 'Messaggio da Genesis',
-      text: data.body || 'Contenuto non specificato.'
-    };
+// Revolut Payment Router
+app.use('/api/revolut', require('./src/paymentEngine'));
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) reject(error);
-      else resolve(info);
-    });
-  });
-}
+// Ping
+app.get('/ping', (req, res) => {
+  res.send('🔁 Genesis online — PING OK');
+});
 
+// Comando test
+app.post('/command', (req, res) => {
+  const { cmd } = req.body;
+  console.log(`📡 Comando ricevuto: ${cmd}`);
+  res.json({ status: 'ok', message: `Comando "${cmd}" eseguito` });
+});
+
+// 404 Fallback
+app.use((req, res) => {
+  res.status(404).send('🌌 Endpoint non trovato');
+});
+
+// Avvio server
 app.listen(PORT, () => {
-  console.log(`🌐 Genesis Console attiva sulla porta ${PORT}`);
+  console.log(`🚀 Genesis Console attiva su porta ${PORT}`);
 });
