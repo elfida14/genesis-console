@@ -1,18 +1,23 @@
-// routes/coupon.js
 const express = require("express");
 const router = express.Router();
-const { validateCoupon, markAsUsed } = require("./couponEngine"); // ✅ percorso corretto
-const { sendNotification } = require("./paymentEngine"); // ✅ corretto anche questo
+
+// ✅ Corretti i percorsi locali
+const { validateCoupon, markAsUsed } = require("./couponEngine");
+const { sendNotification } = require("./paymentEngine");
 
 router.post("/", async (req, res) => {
   const { code } = req.body;
 
-  if (!code) return res.status(400).json({ success: false, message: "Codice mancante" });
+  if (!code)
+    return res.status(400).json({ success: false, message: "Codice mancante" });
 
   const validation = validateCoupon(code);
 
   if (!validation.valid) {
-    return res.status(401).json({ success: false, message: `❌ Coupon non valido: ${validation.reason}` });
+    return res.status(401).json({
+      success: false,
+      message: `❌ Coupon non valido: ${validation.reason}`,
+    });
   }
 
   const { action, amount } = validation.data;
@@ -21,13 +26,21 @@ router.post("/", async (req, res) => {
     if (action === "revolut") {
       await sendNotification(amount, `Attivato con coupon: ${code}`);
       markAsUsed(code);
-      return res.json({ success: true, message: `✅ Inviato manuale di €${amount} avviato.` });
+      return res.json({
+        success: true,
+        message: `✅ Inviato manuale di €${amount} avviato.`,
+      });
     }
 
     // Espandibile: altri tipi di azione
-    return res.status(400).json({ success: false, message: "⚠️ Azione non supportata" });
+    return res
+      .status(400)
+      .json({ success: false, message: "⚠️ Azione non supportata" });
   } catch (e) {
-    return res.status(500).json({ success: false, message: "Errore interno nel server" });
+    console.error("Errore durante l’attivazione del coupon:", e);
+    return res
+      .status(500)
+      .json({ success: false, message: "Errore interno nel server" });
   }
 });
 
