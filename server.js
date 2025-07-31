@@ -1,4 +1,5 @@
 // server.js
+
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -29,9 +30,29 @@ app.use('/api/attacco', require('./routes/attacco'));
 app.use('/api/difesa', require('./routes/difesa'));
 app.use('/api/impact', require('./routes/impact-router'));
 app.use('/api/coupon', require('./routes/couponEngine'));
-app.use('/api/modulo', require('./routes/modulo10–17'));
 app.use('/api/road', require('./routes/roadSystemSynaptic'));
 app.use('/api/revolut', require('./routes/paymentEngine'));
+
+// Moduli 10–17 separati
+require('./routes/modulo-10');
+require('./routes/modulo11-difesa');
+require('./routes/modulo12-attacco');
+require('./routes/modulo13-specchio');
+require('./routes/modulo15-coreIgnis');
+require('./routes/modulo16-hydromind');
+require('./routes/modulo17-occhiodombra');
+
+// Moduli extra (se servono)
+require('./routes/walletManager');
+require('./routes/coupon');
+require('./routes/genesis-broadcast');
+require('./routes/connessioni');
+require('./routes/comandi');
+require('./routes/tele');
+require('./routes/fondi');
+require('./routes/activation-lock');
+require('./routes/satellite');
+require('./routes/profilo');
 
 // Comando universale
 app.post('/command', (req, res) => {
