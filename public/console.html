@@ -26,7 +26,7 @@
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
-          "x-user": "GENESIS313" // opzionale: se hai auth server
+          "x-user": "GENESIS313" // Cambia se usi un altro auth
         },
         body: JSON.stringify({ amount, note })
       });
@@ -38,7 +38,7 @@
       const code = document.getElementById("coupon").value;
       const res = await fetch("/api/coupon", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-user": "GENESIS313" },
         body: JSON.stringify({ code })
       });
       const result = await res.json();
