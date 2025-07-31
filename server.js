@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const walletManager = require('./walletManager');
+const walletManager = require('./walletManager'); // BTC disattivato per ora
 const paymentEngine = require('./paymentEngine');
 const nodemailer = require('nodemailer');
 
@@ -17,7 +17,7 @@ function isAuthorized(req) {
   return req.headers['x-user'] === process.env.GENESIS_USER;
 }
 
-// ✅ ROTTA COMANDI PRINCIPALI
+// ✅ ROTTA COMANDI
 app.post('/command', async (req, res) => {
   const { command, data } = req.body;
   if (!isAuthorized(req)) return res.status(401).json({ success: false, error: 'Accesso negato.' });
@@ -64,7 +64,7 @@ app.post('/command', async (req, res) => {
   }
 });
 
-// ✅ ROTTA INVIO COUPON
+// ✅ COUPON
 app.post('/api/coupon', (req, res) => {
   if (!isAuthorized(req)) return res.status(401).json({ success: false, message: "Accesso negato" });
 
@@ -76,7 +76,7 @@ app.post('/api/coupon', (req, res) => {
   }
 });
 
-// ✅ ROTTA INVIO REVOLUT
+// ✅ REVOLUT
 app.post('/api/revolut', async (req, res) => {
   if (!isAuthorized(req)) return res.status(401).send("Accesso negato");
 
@@ -89,7 +89,7 @@ app.post('/api/revolut', async (req, res) => {
   }
 });
 
-// ✅ FUNZIONE EMAIL
+// ✅ EMAIL
 function sendMail(data) {
   return new Promise((resolve, reject) => {
     const transporter = nodemailer.createTransport({
