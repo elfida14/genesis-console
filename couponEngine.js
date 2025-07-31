@@ -1,46 +1,17 @@
-// couponEngine.js
-const fs = require('fs');
-const path = require('path');
+const express = require('express');
+const router = express.Router();
 
-const COUPON_FILE = path.join(__dirname, 'coupons.json');
+const SEGRETO = process.env.COUPON_SECRET;
 
-// Crea un nuovo codice
-function generateCoupon(code, action, amount = 0) {
-  const coupons = readCoupons();
-  coupons[code] = { action, amount, used: false, createdAt: new Date() };
-  saveCoupons(coupons);
-  return coupons[code];
-}
+router.post('/', (req, res) => {
+  const { code } = req.body;
+  if (!code) return res.status(400).json({ status: 'missing' });
 
-// Verifica se un codice è valido
-function validateCoupon(code) {
-  const coupons = readCoupons();
-  if (!coupons[code]) return { valid: false, reason: 'Codice non trovato' };
-  if (coupons[code].used) return { valid: false, reason: 'Già usato' };
-  return { valid: true, data: coupons[code] };
-}
-
-// Usa un codice una sola volta
-function markAsUsed(code) {
-  const coupons = readCoupons();
-  if (coupons[code]) {
-    coupons[code].used = true;
-    coupons[code].usedAt = new Date();
-    saveCoupons(coupons);
+  if (code === SEGRETO) {
+    return res.json({ status: 'valid', message: 'Codice attivato ✅' });
+  } else {
+    return res.json({ status: 'invalid', message: 'Codice non valido ❌' });
   }
-}
+});
 
-function readCoupons() {
-  if (!fs.existsSync(COUPON_FILE)) return {};
-  return JSON.parse(fs.readFileSync(COUPON_FILE));
-}
-
-function saveCoupons(data) {
-  fs.writeFileSync(COUPON_FILE, JSON.stringify(data, null, 2));
-}
-
-module.exports = {
-  generateCoupon,
-  validateCoupon,
-  markAsUsed,
-};
+module.exports = router;
