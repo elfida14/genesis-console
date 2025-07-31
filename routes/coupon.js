@@ -1,8 +1,8 @@
 // routes/coupon.js
 const express = require("express");
 const router = express.Router();
-const { validateCoupon, markAsUsed } = require("../couponEngine");
-const { sendNotification } = require("../paymentEngine");
+const { validateCoupon, markAsUsed } = require("./couponEngine"); // ✅ percorso corretto
+const { sendNotification } = require("./paymentEngine"); // ✅ corretto anche questo
 
 router.post("/", async (req, res) => {
   const { code } = req.body;
