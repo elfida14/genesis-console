@@ -1,36 +1,36 @@
-const TelegramBot = require('node-telegram-bot-api');
-const nodemailer = require('nodemailer');
+// routes/paymentEngine.js
+const express = require('express');
+const router = express.Router();
+const { sendTelegramMessage } = require('../telegramBot');
+const { sendEmail } = require('../emailSender');
 
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: false });
-const chatId = process.env.TELEGRAM_CHAT_ID;
+const IBAN_REALE = 'IT02N0366901600497371068106';
+const BENEFICIARIO = 'Baki Cabadak';
+const SWIFT = 'REVOITM2';
 
-module.exports.sendNotification = async (amount, note) => {
-  const message = `📲 Invio richiesto: €${amount}\n📝 Nota: ${note}`;
-  await bot.sendMessage(chatId, message);
-  // Email invio opzionale:
-  await sendEmailNotification(amount, note);
-};
+router.post('/', async (req, res) => {
+  const { amount, message } = req.body;
 
-function sendEmailNotification(amount, note) {
-  return new Promise((resolve, reject) => {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
+  const report = `💸 RICHIESTA DI INVIO EURO:
+--------------------------
+👤 Beneficiario: ${BENEFICIARIO}
+🏦 IBAN: ${IBAN_REALE}
+🏦 BIC/SWIFT: ${SWIFT}
+💶 Importo: €${amount}
+📝 Messaggio: ${message}
+📅 Data: ${new Date().toLocaleString()}
+`;
 
-    const mailOptions = {
-      from: `"Genesis" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER,
-      subject: `Notifica invio €${amount}`,
-      text: `Nota: ${note}`
-    };
+  try {
+    await sendTelegramMessage(report);
+    await sendEmail('baki.ozturk.2000@icloud.com', 'Genesis – Invio Fondi', report);
 
-    transporter.sendMail(mailOptions, (err, info) => {
-      if (err) return reject(err);
-      resolve(info);
-    });
-  });
-}
+    console.log('✅ Invio simulato eseguito con successo:', report);
+    res.json({ status: 'ok', iban: IBAN_REALE, amount });
+  } catch (err) {
+    console.error('❌ Errore durante invio:', err);
+    res.status(500).json({ status: 'error', error: err });
+  }
+});
+
+module.exports = router;
