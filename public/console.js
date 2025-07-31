@@ -52,4 +52,4 @@ document.addEventListener('DOMContentLoaded', () => {
       appendLog('⚠️ Errore di connessione con Genesis.', 'errore');
     }
   });
-});
+}); 
