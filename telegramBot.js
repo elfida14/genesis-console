@@ -1,21 +1,27 @@
-const axios = require('axios');
+// telegramBot.js
+const https = require('https');
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const TOKEN = process.env.TELEGRAM_TOKEN;
+const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-async function sendTelegram(message) {
-  try {
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    await axios.post(url, {
-      chat_id: TELEGRAM_CHAT_ID,
-      text: message,
-    });
-    console.log('✅ Telegram inviato.');
-  } catch (error) {
-    console.error('❌ Errore Telegram:', error.message);
-  }
+function sendTelegramMessage(text) {
+  const url = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
+  const data = JSON.stringify({ chat_id: CHAT_ID, text });
+
+  const req = https.request(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': data.length,
+    },
+  });
+
+  req.on('error', (e) => {
+    console.error('❌ Telegram error:', e);
+  });
+
+  req.write(data);
+  req.end();
 }
 
-module.exports = {
-  sendTelegram,
-};
+module.exports = { sendTelegramMessage };
