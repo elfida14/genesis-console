@@ -9,14 +9,14 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-async function send(subject, text) {
+async function sendEmail(to, subject, text) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: process.env.EMAIL_USER,
+    to,
     subject,
     text,
   };
   await transporter.sendMail(mailOptions);
 }
 
-module.exports = { send };
+module.exports = { sendEmail };
