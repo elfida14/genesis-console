@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const walletManager = require('./walletManager'); // BTC disattivato per ora
-const paymentEngine = require('./paymentEngine');
+const paymentEngine = require('./src/paymentEngine'); // ✅ percorso corretto
 const nodemailer = require('nodemailer');
 
 const app = express();
