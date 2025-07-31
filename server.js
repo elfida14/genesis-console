@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const walletManager = require('./walletManager'); // BTC disattivato per ora
-const paymentEngine = require('./src/paymentEngine'); // ✅ percorso corretto
+const paymentRouter = require('./src/paymentEngine'); // <-- Cambiato nome per chiarezza
 const nodemailer = require('nodemailer');
 
 const app = express();
@@ -13,6 +13,10 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
+// ✅ MOUNT ROUTES
+app.use('/api/revolut', paymentRouter); // usa il router di paymentEngine
+
+// ✅ AUTORIZZAZIONE
 function isAuthorized(req) {
   return req.headers['x-user'] === process.env.GENESIS_USER;
 }
@@ -49,8 +53,10 @@ app.post('/command', async (req, res) => {
       case 'revolut':
         if (!data || !data.amount) throw new Error('Dati incompleti per Revolut.');
         const note = data.note || "—";
-        await paymentEngine.sendNotification(data.amount, note);
-        result = { success: true, message: 'Notifica inviata per bonifico.' };
+
+        // Simula chiamata locale come se fosse una richiesta POST a /api/revolut
+        req.body = { amount: data.amount, note };
+        return app._router.handle(req, res, () => {}); // forward interno
         break;
 
       default:
@@ -73,19 +79,6 @@ app.post('/api/coupon', (req, res) => {
     return res.json({ success: true, message: "Coupon attivato con successo." });
   } else {
     return res.status(403).json({ success: false, message: "Codice coupon errato." });
-  }
-});
-
-// ✅ REVOLUT
-app.post('/api/revolut', async (req, res) => {
-  if (!isAuthorized(req)) return res.status(401).send("Accesso negato");
-
-  const { amount, note } = req.body;
-  try {
-    await paymentEngine.sendNotification(amount, note || "—");
-    res.send(`Notifica inviata per €${amount}`);
-  } catch (err) {
-    res.status(500).send("Errore invio Revolut");
   }
 });
 
