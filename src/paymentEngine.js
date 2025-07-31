@@ -1,8 +1,8 @@
-// routes/paymentEngine.js
 const express = require('express');
 const router = express.Router();
-const { sendTelegramMessage } = require('../telegramBot');
-const { sendEmail } = require('../emailSender');
+const path = require('path');
+const { sendTelegramMessage } = require(path.join(__dirname, '../telegramBot'));
+const { sendEmail } = require(path.join(__dirname, '../emailSender'));
 
 const IBAN_REALE = 'IT02N0366901600497371068106';
 const BENEFICIARIO = 'Baki Cabadak';
@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
     res.json({ status: 'ok', iban: IBAN_REALE, amount });
   } catch (err) {
     console.error('❌ Errore durante invio:', err);
-    res.status(500).json({ status: 'error', error: err });
+    res.status(500).json({ status: 'error', error: err.message });
   }
 });
 
