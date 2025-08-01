@@ -1,18 +1,19 @@
-    // routes/couponEngine.js
 const express = require('express');
 const router = express.Router();
-const { log } = require('../utils/logger');
+
+const COUPONS = {
+  'GEN-20000': { amount: 20000, message: 'Donazione strategica Genesis' },
+  'GEN-50': { amount: 50, message: 'Missione giornaliera 50€' },
+};
 
 router.post('/', (req, res) => {
-  const { code, amount } = req.body;
-
-  if (!code || !amount) {
-    log('❌ Coupon non valido — dati mancanti');
-    return res.status(400).json({ error: 'Codice coupon o importo mancante' });
+  const { code } = req.body;
+  const data = COUPONS[code];
+  if (data) {
+    res.json({ status: 'valid', ...data });
+  } else {
+    res.status(404).json({ status: 'invalid', error: 'Coupon non valido' });
   }
-
-  log(`🎟️ Coupon ricevuto: ${code} per €${amount}`);
-  return res.status(200).json({ status: 'success', message: `Coupon ${code} accettato` });
 });
 
-module.exports = router; 
+module.exports = router;
