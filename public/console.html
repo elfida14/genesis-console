@@ -1,58 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
   <title>Genesis Console</title>
-  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>👁 Console Genesis LIVE</h1>
+  <h1>🌍 Genesis Console</h1>
 
-  <button onclick="sendCommand('ping')">🔄 Ping</button>
-  <button onclick="sendCommand('status')">📊 Stato BTC</button>
-  <button onclick="sendCommand('sendmail', {
-    to: 'baki.ozturk.2000@icloud.com',
-    subject: 'Notifica Genesis',
-    body: 'Questa è una notifica diretta da Genesis.'
-  })">📧 Invia Mail</button>
+  <h3>🔑 Attiva Coupon</h3>
+  <input type="text" id="couponCode" placeholder="Inserisci codice coupon" />
+  <button onclick="activateCoupon()">Attiva</button>
+  <p id="couponResponse"></p>
 
-  <button onclick="sendCommand('revolut', { amount: 50, note: 'Invio test €50' })">💸 Invia €50</button>
-  <button onclick="sendCommand('revolut', { amount: 20000, note: 'Invio URGENTE €20.000' })">🚨 Invia €20.000</button>
-
-  <br><br>
-  <input id="couponCode" placeholder="Inserisci codice coupon">
-  <button onclick="attivaCoupon()">🎟️ Attiva Coupon</button>
-
-  <pre id="output"></pre>
+  <hr>
+  <h3>💬 Parla con Cento</h3>
+  <textarea id="centoInput" rows="4" cols="50" placeholder="Scrivi a Cento..."></textarea><br>
+  <button onclick="sendToCento()">Invia</button>
+  <pre id="centoResponse" style="margin-top: 1em; white-space: pre-wrap;"></pre>
 
   <script>
-    async function sendCommand(command, data = {}) {
-      const res = await fetch('/command', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-user': 'Shadow-313-core' // ✅ CORRETTO
-        },
-        body: JSON.stringify({ command, data })
-      });
-
-      const out = await res.json();
-      document.getElementById('output').textContent = JSON.stringify(out, null, 2);
-    }
-
-    async function attivaCoupon() {
-      const code = document.getElementById('couponCode').value;
-      const res = await fetch('/api/coupon', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-user': 'Shadow-313-core' // ✅ CORRETTO
-        },
+    async function activateCoupon() {
+      const code = document.getElementById("couponCode").value;
+      const response = await fetch("/api/coupon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code })
       });
 
-      const out = await res.json();
-      document.getElementById('output').textContent = JSON.stringify(out, null, 2);
+      const data = await response.json();
+      document.getElementById("couponResponse").textContent = data.message;
+    }
+
+    async function sendToCento() {
+      const message = document.getElementById("centoInput").value;
+      const response = await fetch("/ask-cento", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await response.json();
+      document.getElementById("centoResponse").textContent = data.reply;
     }
   </script>
 </body>
