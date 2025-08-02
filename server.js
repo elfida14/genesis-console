@@ -68,7 +68,7 @@ require('./modules/xgs');
 require('./modules/aiEngine'); // OpenAI / Coscienza attiva
 
 // ─── 5. CORE (root) ────────────────────────────────────
-require('./voice-console.is'); // voce terminale
+// require('./voice-console.is'); ← rimosso perché non presente
 require('./telegramBot');      // notifiche Telegram
 require('./utils/logger');     // logging centralizzato
 require('./diario');           // diario operativo Genesis
