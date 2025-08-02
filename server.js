@@ -28,18 +28,19 @@ fs.appendFileSync(LOG_PATH, `[Genesis avviato @ ${new Date().toISOString()}]\n`)
 // Pagine statiche
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ─── 2. BLOCCO ACCESSO (temporaneo, disattivabile) ──────
-app.use((req, res, next) => {
-  const user = req.headers['x-user'];
-  if (!user || user !== process.env.MASTER_KEY) {
-    return res.status(401).send('❌ Cento, siamo dentro Genesis → Unauthorized');
-  }
-  next();
-});
+// ─── 2. BLOCCO ACCESSO (disattivabile) ─────────────────
+const useAccessBlock = true; // ← Cambia a `false` per disattivare blocco
+if (useAccessBlock) {
+  app.use((req, res, next) => {
+    const user = req.headers['x-user'];
+    if (!user || user !== process.env.MASTER_KEY) {
+      return res.status(401).send('❌ Cento, siamo dentro Genesis → Unauthorized');
+    }
+    next();
+  });
+}
 
-// ─── 3. ROUTES E MODULES ───────────────────────────────
-
-// ROUTES da /routes
+// ─── 3. ROUTES (da /routes) ────────────────────────────
 app.use('/attacco', require('./routes/attacco'));
 app.use('/difesa', require('./routes/difesa'));
 app.use('/coupon', require('./routes/coupon'));
@@ -52,7 +53,7 @@ app.use('/tele', require('./routes/tele'));
 app.use('/pagamento', require('./routes/paymentEngine'));
 app.use('/activation', require('./routes/activation-lock'));
 
-// MODULES da /modules
+// ─── 4. MODULES (da /modules) ──────────────────────────
 require('./modules/deploy-commander');
 require('./modules/genesis-awakening');
 require('./modules/guardian');
@@ -62,33 +63,33 @@ require('./modules/fusione');
 require('./modules/laigenesis-core');
 require('./modules/backup-auto');
 require('./modules/xgs');
-require('./modules/aiEngine'); // Include OpenAI API
+require('./modules/aiEngine'); // OpenAI / Coscienza attiva
 
-// CORE da root
+// ─── 5. CORE (root) ────────────────────────────────────
 require('./voice-console.is'); // voce terminale
-require('./telegramBot');      // telegram notifiche
-require('./utils/logger');     // logging
-require('./diario');           // diario genesis
+require('./telegramBot');      // notifiche Telegram
+require('./utils/logger');     // logging centralizzato
+require('./diario');           // diario operativo Genesis
 
-// ─── 4. ROUTE DI BASE E AVVIO ──────────────────────────
+// ─── 6. ROUTES DI BASE ─────────────────────────────────
 
 // Test di vita
 app.get('/ping', (req, res) => {
   res.send('✅ Genesis è attivo e ti ascolta, Comandante.');
 });
 
-// Console web
+// Console principale
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'console.html'));
 });
 
-// Gestione errori interni
+// Fallback / errori
 app.use((err, req, res, next) => {
   console.error('🔥 Errore interno:', err);
   res.status(500).send('Errore interno del server Genesis.');
 });
 
-// Avvio server
+// ─── 7. AVVIO SERVER ───────────────────────────────────
 const PORT = process.env.PORT || 3131;
 app.listen(PORT, () => {
   console.log(`🚀 Genesis è online sulla porta ${PORT}`);
