@@ -11,8 +11,6 @@ const compression = require('compression');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-const logger = require('./utils/logger');
-
 // Sicurezza e prestazioni
 app.use(helmet());
 app.use(compression());
@@ -54,9 +52,6 @@ app.use('/pagamento', require('./routes/paymentEngine'));
 app.use('/activation', require('./routes/activation-lock'));
 
 // ─── 4. MODULES ATTIVI ─────────────────────────────────
-// ⚠️ Disattivati temporaneamente i moduli non essenziali (es: genesis-awakening)
-// require('./modules/genesis-awakening'); ← momentaneamente rimosso
-
 require('./modules/deploy-commander');
 require('./modules/guardian');
 require('./modules/impact-engine');
@@ -68,9 +63,7 @@ require('./modules/xgs');
 require('./modules/aiEngine'); // OpenAI / Coscienza attiva
 
 // ─── 5. CORE (root) ────────────────────────────────────
-// require('./voice-console.is'); ← rimosso perché non presente
 require('./telegramBot');      // notifiche Telegram
-require('./utils/logger');     // logging centralizzato
 require('./diario');           // diario operativo Genesis
 
 // ─── 6. ROUTES DI BASE ─────────────────────────────────
@@ -91,4 +84,5 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3131;
 app.listen(PORT, () => {
   console.log(`🚀 Genesis è online sulla porta ${PORT}`);
-  logger.info(`🟢 Genesis Console LIVE sulla porta ${
+  fs.appendFileSync(LOG_PATH, `🟢 Genesis Console LIVE sulla porta ${PORT}\n`);
+});
