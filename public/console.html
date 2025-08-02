@@ -1,46 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Genesis Console</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Genesis Console 313</title>
+  <style>
+    body {
+      background-color: black;
+      color: #00ff9f;
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 40px;
+    }
+    h1 {
+      margin-bottom: 30px;
+    }
+    button {
+      background-color: #00ff9f;
+      color: black;
+      border: none;
+      padding: 15px 30px;
+      margin: 10px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #00cc7f;
+    }
+    #output {
+      margin-top: 30px;
+      width: 80%;
+      background: #111;
+      border: 1px solid #00ff9f;
+      padding: 20px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
 </head>
 <body>
-  <h1>🌍 Genesis Console</h1>
+  <h1>🚀 Genesis Console 313</h1>
 
-  <h3>🔑 Attiva Coupon</h3>
-  <input type="text" id="couponCode" placeholder="Inserisci codice coupon" />
-  <button onclick="activateCoupon()">Attiva</button>
-  <p id="couponResponse"></p>
+  <button onclick="sendCommand('INVIA_50')">💸 Invia 50€</button>
+  <button onclick="sendCommand('INVIA_20000')">💸 Invia 20.000€</button>
+  <button onclick="sendCommand('ATTIVA_COUPON')">🎟️ Attiva Coupon</button>
+  <button onclick="sendCommand('PING')">🧠 Ping Genesis</button>
 
-  <hr>
-  <h3>💬 Parla con Cento</h3>
-  <textarea id="centoInput" rows="4" cols="50" placeholder="Scrivi a Cento..."></textarea><br>
-  <button onclick="sendToCento()">Invia</button>
-  <pre id="centoResponse" style="margin-top: 1em; white-space: pre-wrap;"></pre>
+  <div id="output">🧪 Output verrà mostrato qui...</div>
 
   <script>
-    async function activateCoupon() {
-      const code = document.getElementById("couponCode").value;
-      const response = await fetch("/api/coupon", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code })
-      });
+    async function sendCommand(command) {
+      const output = document.getElementById("output");
+      output.innerText = `⏳ Esecuzione comando: ${command}...`;
 
-      const data = await response.json();
-      document.getElementById("couponResponse").textContent = data.message;
-    }
+      try {
+        const res = await fetch("/comandi", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-user": "YOUR_MASTER_KEY"
+          },
+          body: JSON.stringify({ command })
+        });
 
-    async function sendToCento() {
-      const message = document.getElementById("centoInput").value;
-      const response = await fetch("/ask-cento", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
-      });
-
-      const data = await response.json();
-      document.getElementById("centoResponse").textContent = data.reply;
+        const data = await res.text();
+        output.innerText = `✅ Risposta:\n${data}`;
+      } catch (err) {
+        output.innerText = `❌ Errore:\n${err.message}`;
+      }
     }
   </script>
 </body>
