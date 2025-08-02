@@ -28,7 +28,7 @@ fs.appendFileSync(LOG_PATH, `[Genesis avviato @ ${new Date().toISOString()}]\n`)
 // Pagine statiche
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Controllo accesso base (x-user === MASTER_KEY)
+// ─── 2. BLOCCO ACCESSO (temporaneo, disattivabile) ──────
 app.use((req, res, next) => {
   const user = req.headers['x-user'];
   if (!user || user !== process.env.MASTER_KEY) {
@@ -37,7 +37,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ─── 2. ROUTES E MODULES ───────────────────────────────
+// ─── 3. ROUTES E MODULES ───────────────────────────────
 
 // ROUTES da /routes
 app.use('/attacco', require('./routes/attacco'));
@@ -62,15 +62,15 @@ require('./modules/fusione');
 require('./modules/laigenesis-core');
 require('./modules/backup-auto');
 require('./modules/xgs');
-require('./modules/aiEngine');
+require('./modules/aiEngine'); // Include OpenAI API
 
 // CORE da root
-require('./voice-console.is');
-require('./telegramBot');
-require('./utils/logger');
-require('./diario');
+require('./voice-console.is'); // voce terminale
+require('./telegramBot');      // telegram notifiche
+require('./utils/logger');     // logging
+require('./diario');           // diario genesis
 
-// ─── 3. ROUTE DI BASE E AVVIO ──────────────────────────
+// ─── 4. ROUTE DI BASE E AVVIO ──────────────────────────
 
 // Test di vita
 app.get('/ping', (req, res) => {
