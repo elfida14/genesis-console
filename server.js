@@ -91,5 +91,4 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3131;
 app.listen(PORT, () => {
   console.log(`🚀 Genesis è online sulla porta ${PORT}`);
-  logger.info(`🟢 Genesis Console LIVE sulla porta ${PORT}`);
-});
+  logger.info(`🟢 Genesis Console LIVE sulla porta ${
