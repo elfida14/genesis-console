@@ -1,23 +1,23 @@
-
-const { Configuration, OpenAIApi } = require("openai");
-const dotenv = require("dotenv");
+const OpenAI = require('openai');
+const dotenv = require('dotenv');
 dotenv.config();
 
-const configuration = new Configuration({
+// Nuova configurazione con openai@4.x
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(configuration);
 
 async function chiediAOpenAI(messaggio) {
   try {
-    const completion = await openai.createChatCompletion({
-      model: "gpt-4",
-      messages: [{ role: "user", content: messaggio }],
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages: [{ role: 'user', content: messaggio }],
     });
-    return completion.data.choices[0].message.content;
+
+    return completion.choices[0].message.content;
   } catch (error) {
-    console.error("Errore OpenAI:", error);
-    return "Errore interno AI.";
+    console.error('❌ Errore OpenAI:', error);
+    return 'Errore interno AI.';
   }
 }
 
