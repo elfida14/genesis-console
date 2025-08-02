@@ -1,27 +1,26 @@
-// telegramBot.js
-const https = require('https');
+const TelegramBot = require('node-telegram-bot-api');
+const fs = require('fs');
+const path = require('path');
+const dotenv = require('dotenv');
+dotenv.config();
 
-const TOKEN = process.env.TELEGRAM_TOKEN;
-const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN || '8171556916:AAECpQMwwEF9c_TCKaL9yI0Tt1F71T5KR-A', { polling: false });
+const CHAT_ID = process.env.TELEGRAM_CHAT_ID || '7817224380';
 
-function sendTelegramMessage(text) {
-  const url = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
-  const data = JSON.stringify({ chat_id: CHAT_ID, text });
+const logFile = path.join(__dirname, 'logs', 'tlgs.log');
 
-  const req = https.request(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': data.length,
-    },
-  });
-
-  req.on('error', (e) => {
-    console.error('❌ Telegram error:', e);
-  });
-
-  req.write(data);
-  req.end();
+function sendTelegramMessage(message) {
+  const fullMsg = `[GENESIS 🔔]\n${message}`;
+  bot.sendMessage(CHAT_ID, fullMsg)
+    .then(() => {
+      fs.appendFileSync(logFile, `[TELEGRAM SENT] ${new Date().toISOString()} - ${message}\n`);
+    })
+    .catch(err => {
+      fs.appendFileSync(logFile, `[TELEGRAM ERROR] ${new Date().toISOString()} - ${err.message}\n`);
+      console.error("❌ Errore invio Telegram:", err);
+    });
 }
 
-module.exports = { sendTelegramMessage };
+module.exports = {
+  sendTelegramMessage
+};
