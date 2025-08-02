@@ -2,47 +2,27 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Login Genesis 313</title>
-  <style>
-    body {
-      background: black;
-      color: #00ff88;
-      font-family: monospace;
-      text-align: center;
-      padding-top: 100px;
-    }
-    input {
-      background: black;
-      border: 1px solid #00ff88;
-      color: #00ff88;
-      font-size: 18px;
-      margin: 10px;
-      padding: 10px;
-      width: 250px;
-    }
-    button {
-      background: #00ff88;
-      color: black;
-      border: none;
-      padding: 10px 20px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    #login-message {
-      color: #ff4444;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-  </style>
+  <title>Login Genesis</title>
+  <link rel="stylesheet" href="style.gsi" />
 </head>
 <body>
-  <h1>Genesis 313 – Accesso Autorizzato</h1>
-  <input type="text" id="username" placeholder="Nome utente" autocomplete="off" /><br />
-  <input type="password" id="password" placeholder="Password" autocomplete="off" /><br />
-  <button onclick="login()">Entra</button>
+  <div class="login-container">
+    <h2>Genesis Login</h2>
+    <input type="password" id="key" placeholder="Inserisci il Codice Segreto" />
+    <button onclick="login()">Accedi</button>
+    <p id="msg"></p>
+  </div>
 
-  <p id="login-message"></p>
-
-  <script src="login.js"></script>
+  <script>
+    function login() {
+      const key = document.getElementById('key').value;
+      if (key.trim()) {
+        localStorage.setItem('x-user', key.trim());
+        window.location.href = "console.html";
+      } else {
+        document.getElementById('msg').innerText = "Codice mancante";
+      }
+    }
+  </script>
 </body>
 </html>
