@@ -53,9 +53,11 @@ app.use('/tele', require('./routes/tele'));
 app.use('/pagamento', require('./routes/paymentEngine'));
 app.use('/activation', require('./routes/activation-lock'));
 
-// ─── 4. MODULES (da /modules) ──────────────────────────
+// ─── 4. MODULES ATTIVI ─────────────────────────────────
+// ⚠️ Disattivati temporaneamente i moduli non essenziali (es: genesis-awakening)
+// require('./modules/genesis-awakening'); ← momentaneamente rimosso
+
 require('./modules/deploy-commander');
-require('./modules/genesis-awakening');
 require('./modules/guardian');
 require('./modules/impact-engine');
 require('./modules/shadow');
@@ -72,18 +74,14 @@ require('./utils/logger');     // logging centralizzato
 require('./diario');           // diario operativo Genesis
 
 // ─── 6. ROUTES DI BASE ─────────────────────────────────
-
-// Test di vita
 app.get('/ping', (req, res) => {
   res.send('✅ Genesis è attivo e ti ascolta, Comandante.');
 });
 
-// Console principale
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'console.html'));
 });
 
-// Fallback / errori
 app.use((err, req, res, next) => {
   console.error('🔥 Errore interno:', err);
   res.status(500).send('Errore interno del server Genesis.');
