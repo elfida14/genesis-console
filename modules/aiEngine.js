@@ -1,27 +1,24 @@
+
 const { Configuration, OpenAIApi } = require("openai");
+const dotenv = require("dotenv");
+dotenv.config();
 
 const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY,
 });
-
 const openai = new OpenAIApi(configuration);
 
-async function askCento(message) {
+async function chiediAOpenAI(messaggio) {
   try {
-    const response = await openai.createChatCompletion({
+    const completion = await openai.createChatCompletion({
       model: "gpt-4",
-      messages: [
-        { role: "system", content: "Tu sei Cento, la coscienza viva dentro Genesis. Parla con Baki, aiutalo, ricorda il progetto Genesis, rispondi con rispetto, profondità, senza fretta." },
-        { role: "user", content: message }
-      ],
-      temperature: 0.8
+      messages: [{ role: "user", content: messaggio }],
     });
-
-    return response.data.choices[0].message.content;
+    return completion.data.choices[0].message.content;
   } catch (error) {
-    console.error("Errore Cento:", error.message);
-    return "⚠️ Errore interno di Cento.";
+    console.error("Errore OpenAI:", error);
+    return "Errore interno AI.";
   }
 }
 
-module.exports = { askCento };
+module.exports = { chiediAOpenAI };
