@@ -27,13 +27,14 @@ fs.appendFileSync(LOG_PATH, `[Genesis avviato @ ${new Date().toISOString()}]\n`)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── 2. BLOCCO ACCESSO ─────────────────────────────────
-const MASTER_KEY = process.env.MASTER_KEY || 'shadow313-core';
+const MASTER_KEY = process.env.MASTER_KEY || 'Baki313';
 const useAccessBlock = true;
 if (useAccessBlock) {
   app.use((req, res, next) => {
     const user = req.headers['x-user'];
     if (!user || user !== MASTER_KEY) {
-      return res.status(401).send('❌ Cento, siamo dentro Genesis → Unauthorized');
+      console.warn('⛔ Accesso negato:', user);
+      return res.status(401).send('❌ Cento: Unauthorized – Chiave errata o mancante.');
     }
     next();
   });
@@ -51,9 +52,9 @@ app.use('/tele', require('./routes/tele'));
 app.use('/pagamento', require('./routes/paymentEngine'));
 app.use('/activation', require('./routes/activation-lock'));
 
-// ✅ Route COMANDI
+// ✅ COMANDI SPECIALI
 app.post('/comandi', (req, res) => {
-  const comando = req.body.command;
+  const comando = req.body.command?.toUpperCase?.() || '';
   let risposta = '';
 
   switch (comando) {
@@ -70,7 +71,7 @@ app.post('/comandi', (req, res) => {
       risposta = '🎟️ Attivazione coupon avviata.';
       break;
     default:
-      risposta = '❓ Comando sconosciuto.';
+      risposta = `❓ Comando sconosciuto: ${comando}`;
   }
 
   fs.appendFileSync(LOG_PATH, `[COMANDO] ${new Date().toISOString()} → ${comando}\n`);
@@ -101,12 +102,13 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'console.html'));
 });
 
+// ─── 7. ERRORE GLOBALE ─────────────────────────────────
 app.use((err, req, res, next) => {
   console.error('🔥 Errore interno:', err);
   res.status(500).send('Errore interno del server Genesis.');
 });
 
-// ─── 7. AVVIO ──────────────────────────────────────────
+// ─── 8. AVVIO SERVER ──────────────────────────────────
 const PORT = process.env.PORT || 3131;
 app.listen(PORT, () => {
   console.log(`🚀 Genesis è online sulla porta ${PORT}`);
