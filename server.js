@@ -26,8 +26,8 @@ fs.appendFileSync(LOG_PATH, `[Genesis avviato @ ${new Date().toISOString()}]\n`)
 // Pagine statiche
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ─── 2. BLOCCO ACCESSO (disattivabile) ─────────────────
-const useAccessBlock = true; // ← Cambia a `false` per disattivare blocco
+// ─── 2. BLOCCO ACCESSO ─────────────────────────────────
+const useAccessBlock = true;
 if (useAccessBlock) {
   app.use((req, res, next) => {
     const user = req.headers['x-user'];
@@ -38,18 +38,43 @@ if (useAccessBlock) {
   });
 }
 
-// ─── 3. ROUTES (da /routes) ────────────────────────────
+// ─── 3. ROUTES ─────────────────────────────────────────
 app.use('/attacco', require('./routes/attacco'));
 app.use('/difesa', require('./routes/difesa'));
 app.use('/coupon', require('./routes/coupon'));
 app.use('/fondi', require('./routes/fondi'));
 app.use('/impact', require('./routes/impact-router'));
 app.use('/profilo', require('./routes/profilo'));
-app.use('/comandi', require('./routes/comandi'));
 app.use('/connessioni', require('./routes/connessioni'));
 app.use('/tele', require('./routes/tele'));
 app.use('/pagamento', require('./routes/paymentEngine'));
 app.use('/activation', require('./routes/activation-lock'));
+
+// ✅ Route COMANDI direttamente qui:
+app.post('/comandi', (req, res) => {
+  const comando = req.body.command;
+  let risposta = '';
+
+  switch (comando) {
+    case 'PING':
+      risposta = '✅ Genesis è vivo e pronto.';
+      break;
+    case 'INVIA_50':
+      risposta = '🚀 Ordine ricevuto: Invio 50€.';
+      break;
+    case 'INVIA_20000':
+      risposta = '🚀 Ordine ricevuto: Invio 20.000€.';
+      break;
+    case 'ATTIVA_COUPON':
+      risposta = '🎟️ Attivazione coupon avviata.';
+      break;
+    default:
+      risposta = '❓ Comando sconosciuto.';
+  }
+
+  fs.appendFileSync(LOG_PATH, `[COMANDO] ${new Date().toISOString()} → ${comando}\n`);
+  res.send(risposta);
+});
 
 // ─── 4. MODULES ATTIVI ─────────────────────────────────
 require('./modules/deploy-commander');
@@ -60,13 +85,13 @@ require('./modules/fusione');
 require('./modules/laigenesis-core');
 require('./modules/backup-auto');
 require('./modules/xgs');
-require('./modules/aiEngine'); // OpenAI / Coscienza attiva
+require('./modules/aiEngine');
 
-// ─── 5. CORE (root) ────────────────────────────────────
-require('./telegramBot');      // notifiche Telegram
-require('./diario');           // diario operativo Genesis
+// ─── 5. CORE ───────────────────────────────────────────
+require('./telegramBot');
+require('./diario');
 
-// ─── 6. ROUTES DI BASE ─────────────────────────────────
+// ─── 6. BASE ROUTES ────────────────────────────────────
 app.get('/ping', (req, res) => {
   res.send('✅ Genesis è attivo e ti ascolta, Comandante.');
 });
@@ -80,7 +105,7 @@ app.use((err, req, res, next) => {
   res.status(500).send('Errore interno del server Genesis.');
 });
 
-// ─── 7. AVVIO SERVER ───────────────────────────────────
+// ─── 7. AVVIO ──────────────────────────────────────────
 const PORT = process.env.PORT || 3131;
 app.listen(PORT, () => {
   console.log(`🚀 Genesis è online sulla porta ${PORT}`);
