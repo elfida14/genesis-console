@@ -27,11 +27,12 @@ fs.appendFileSync(LOG_PATH, `[Genesis avviato @ ${new Date().toISOString()}]\n`)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── 2. BLOCCO ACCESSO ─────────────────────────────────
+const MASTER_KEY = process.env.MASTER_KEY || 'shadow313-core';
 const useAccessBlock = true;
 if (useAccessBlock) {
   app.use((req, res, next) => {
     const user = req.headers['x-user'];
-    if (!user || user !== process.env.MASTER_KEY) {
+    if (!user || user !== MASTER_KEY) {
       return res.status(401).send('❌ Cento, siamo dentro Genesis → Unauthorized');
     }
     next();
@@ -50,7 +51,7 @@ app.use('/tele', require('./routes/tele'));
 app.use('/pagamento', require('./routes/paymentEngine'));
 app.use('/activation', require('./routes/activation-lock'));
 
-// ✅ Route COMANDI direttamente qui:
+// ✅ Route COMANDI
 app.post('/comandi', (req, res) => {
   const comando = req.body.command;
   let risposta = '';
