@@ -26,19 +26,8 @@ fs.appendFileSync(LOG_PATH, `[Genesis avviato @ ${new Date().toISOString()}]\n`)
 // Pagine statiche
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ─── 2. BLOCCO ACCESSO ─────────────────────────────────
-const MASTER_KEY = process.env.MASTER_KEY || 'Baki313';
-const useAccessBlock = true;
-if (useAccessBlock) {
-  app.use((req, res, next) => {
-    const user = req.headers['x-user'];
-    if (!user || user !== MASTER_KEY) {
-      console.warn('⛔ Accesso negato:', user);
-      return res.status(401).send('❌ Cento: Unauthorized – Chiave errata o mancante.');
-    }
-    next();
-  });
-}
+// ─── 2. BLOCCO ACCESSO (RIMOSSO) ───────────────────────
+// 🔓 Accesso libero per tutti i comandi
 
 // ─── 3. ROUTES ─────────────────────────────────────────
 app.use('/attacco', require('./routes/attacco'));
