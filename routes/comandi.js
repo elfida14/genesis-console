@@ -1,33 +1,29 @@
 const express = require('express');
 const router = express.Router();
 
-// Comando base di test
-router.get('/ping', (req, res) => {
-  res.status(200).json({
-    messaggio: "🛰️ Modulo COMANDI attivo. Genesis riceve.",
-    tempo: new Date().toISOString(),
-    stato: "online",
-    modulo: "comandi",
-    codice: "GEN-CMD-01"
-  });
-});
-
-// Comando per avviare una simulazione (placeholder)
+// Esecuzione comandi generici
 router.post('/esegui', (req, res) => {
-  const { nomeComando, parametri } = req.body;
-
-  if (!nomeComando) {
-    return res.status(400).json({ errore: 'Comando non specificato' });
+  const { command } = req.body;
+  if (!command) {
+    return res.status(400).send("❌ Comando mancante");
   }
 
-  res.status(200).json({
-    conferma: `Comando '${nomeComando}' eseguito ✅`,
-    dettagli: {
-      input: parametri || null,
-      codice: "CMD-EXEC-OK",
-      orario: new Date().toISOString()
-    }
-  });
+  // Log del comando ricevuto
+  console.log(`📥 Comando ricevuto: ${command}`);
+
+  // Esegui risposta di test
+  switch (command) {
+    case 'INVIA_50':
+      return res.send("💸 Invio di 50€ registrato (test).");
+    case 'INVIA_20000':
+      return res.send("💸 Invio di 20.000€ registrato (test).");
+    case 'ATTIVA_COUPON':
+      return res.send("🎟️ Codice coupon attivato (test).");
+    case 'PING':
+      return res.send("🧠 Genesis ti ascolta. Ping ricevuto.");
+    default:
+      return res.send(`🤖 Comando ricevuto: ${command}`);
+  }
 });
 
 module.exports = router;
