@@ -57,11 +57,11 @@
       output.innerText = `⏳ Esecuzione comando: ${command}...`;
 
       try {
-        const res = await fetch("/comandi", {
+        const res = await fetch("/comandi/esegui", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-user": "shadow313-core" // ← chiave corretta da .env
+            "x-user": "shadow313-core"
           },
           body: JSON.stringify({ command })
         });
