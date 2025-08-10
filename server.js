@@ -1,49 +1,97 @@
-// ─── 1. SETUP BASE ─────────────────────────────────────
+// server.js — base robusta per Genesis Console (v4+v11)
 const express = require('express');
 const app = express();
 const fs = require('fs');
 const path = require('path');
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config();
 
-const helmet = require('helmet');
-const compression = require('compression');
-const bodyParser = require('body-parser');
-const cors = require('cors');
+const helmet = safeRequire('helmet') || (() => (req,res,next)=>next());
+const compression = safeRequire('compression') || (() => (req,res,next)=>next());
+const bodyParser = safeRequire('body-parser') || { json: () => (req,res,next)=>next(), urlencoded: ()=> (req,res,next)=>next() };
+const cors = safeRequire('cors') || (() => (req,res,next)=>next());
 
-// Sicurezza e prestazioni
-app.use(helmet());
-app.use(compression());
-app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+function safeRequire(name) {
+  try { return require(name); }
+  catch (e) {
+    console.warn(`(WARN) Modul opzionale non trovato: ${name}`);
+    return null;
+  }
+}
 
-// Logs iniziali
-const LOG_PATH = path.join(__dirname, 'logs', 'tlgs.log');
-if (!fs.existsSync('logs')) fs.mkdirSync('logs');
-fs.appendFileSync(LOG_PATH, `[Genesis avviato @ ${new Date().toISOString()}]\n`);
+// --- Middleware sicurezza / perfomance (se i moduli esistono) ---
+if (helmet) app.use(helmet());
+if (compression) app.use(compression());
+if (cors) app.use(cors());
+if (bodyParser && bodyParser.json) app.use(bodyParser.json());
+if (bodyParser && bodyParser.urlencoded) app.use(bodyParser.urlencoded({ extended: true }));
 
-// Pagine statiche
+// --- paths & logs ---
+const LOG_DIR = path.join(__dirname, 'logs');
+const LOG_PATH = path.join(LOG_DIR, 'tlgs.log');
+if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
+function appendLog(line) {
+  try { fs.appendFileSync(LOG_PATH, line + '\n'); } catch(e){ console.warn('Impossibile scrivere log:', e.message); }
+}
+appendLog(`[Genesis avviato @ ${new Date().toISOString()}]`);
+
+// --- static public ---
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ─── 2. BLOCCO ACCESSO (RIMOSSO) ───────────────────────
-// 🔓 Accesso libero per tutti i comandi
+// --- Access block toggle ---
+// per disattivare: setta USE_ACCESS_BLOCK=false nelle env (es. su Render)
+const USE_ACCESS_BLOCK = (process.env.USE_ACCESS_BLOCK || 'true').toLowerCase() !== 'false';
+const MASTER_KEY = process.env.MASTER_KEY || 'Baki313';
 
-// ─── 3. ROUTES ─────────────────────────────────────────
-app.use('/attacco', require('./routes/attacco'));
-app.use('/difesa', require('./routes/difesa'));
-app.use('/coupon', require('./routes/coupon'));
-app.use('/fondi', require('./routes/fondi'));
-app.use('/impact', require('./routes/impact-router'));
-app.use('/profilo', require('./routes/profilo'));
-app.use('/connessioni', require('./routes/connessioni'));
-app.use('/tele', require('./routes/tele'));
-app.use('/pagamento', require('./routes/paymentEngine'));
-app.use('/activation', require('./routes/activation-lock'));
+if (USE_ACCESS_BLOCK) {
+  app.use((req, res, next) => {
+    const user = req.headers['x-user'] || req.headers['x-user'.toLowerCase()];
+    if (!user || user !== MASTER_KEY) {
+      console.warn('⛔ Accesso negato:', user || '(nessuna x-user)');
+      appendLog(`⛔ Accesso negato: ${user || '(none)'} @ ${new Date().toISOString()}`);
+      return res.status(401).send('❌ Cento: Unauthorized – Chiave errata o mancante.');
+    }
+    next();
+  });
+}
 
-// ✅ COMANDI SPECIALI
+// --- helper per require sicuro di moduli locali ---
+function requireSafeLocal(relativePath) {
+  try {
+    const resolved = path.join(__dirname, relativePath);
+    return require(resolved);
+  } catch (e) {
+    console.warn(`(WARN) file locale non trovato o errore: ${relativePath}`);
+    return null;
+  }
+}
+
+// --- carica tutte le route in ./routes se presenti (non crasha se mancano) ---
+const routesDir = path.join(__dirname, 'routes');
+if (fs.existsSync(routesDir)) {
+  const routeFiles = fs.readdirSync(routesDir).filter(f => f.endsWith('.js'));
+  routeFiles.forEach(f => {
+    try {
+      const routePath = `./routes/${f}`;
+      // mount path: /<nome-senza-extension> (es: coupon.js -> /coupon)
+      const mount = '/' + f.replace('.js','');
+      const r = requireSafeLocal(`routes/${f}`);
+      if (r) {
+        app.use(mount, r);
+        console.log(`+ Route caricata: ${mount} -> routes/${f}`);
+        appendLog(`[ROUTE] caricato ${mount}`);
+      }
+    } catch (e) {
+      console.warn(`(WARN) errore caricando routes/${f}: ${e.message}`);
+    }
+  });
+} else {
+  console.log('(INFO) Nessuna cartella routes/ trovata — saltata auto-load.');
+}
+
+// --- COMANDI: endpoint usato dalla console (compatibile con il tuo client) ---
 app.post('/comandi', (req, res) => {
-  const comando = req.body.command?.toUpperCase?.() || '';
+  const comando = (req.body.command || '').toString().trim().toUpperCase();
+  appendLog(`[COMANDO RICEVUTO] ${comando} @ ${new Date().toISOString()}`);
   let risposta = '';
 
   switch (comando) {
@@ -51,55 +99,65 @@ app.post('/comandi', (req, res) => {
       risposta = '✅ Genesis è vivo e pronto.';
       break;
     case 'INVIA_50':
-      risposta = '🚀 Ordine ricevuto: Invio 50€.';
+      risposta = '🚀 Ordine ricevuto: Invio 50€ (simulato).';
       break;
     case 'INVIA_20000':
-      risposta = '🚀 Ordine ricevuto: Invio 20.000€.';
+      risposta = '🚀 Ordine ricevuto: Invio 20.000€ (simulato).';
       break;
     case 'ATTIVA_COUPON':
-      risposta = '🎟️ Attivazione coupon avviata.';
+      risposta = '🎟️ Attivazione coupon avviata (simulato).';
       break;
     default:
       risposta = `❓ Comando sconosciuto: ${comando}`;
   }
 
-  fs.appendFileSync(LOG_PATH, `[COMANDO] ${new Date().toISOString()} → ${comando}\n`);
+  // log e risposta
+  appendLog(`[COMANDO] ${comando} -> ${risposta}`);
   res.send(risposta);
 });
 
-// ─── 4. MODULES ATTIVI ─────────────────────────────────
-require('./modules/deploy-commander');
-require('./modules/guardian');
-require('./modules/impact-engine');
-require('./modules/shadow');
-require('./modules/fusione');
-require('./modules/laigenesis-core');
-require('./modules/backup-auto');
-require('./modules/xgs');
-require('./modules/aiEngine');
-
-// ─── 5. CORE ───────────────────────────────────────────
-require('./telegramBot');
-require('./diario');
-
-// ─── 6. BASE ROUTES ────────────────────────────────────
-app.get('/ping', (req, res) => {
-  res.send('✅ Genesis è attivo e ti ascolta, Comandante.');
+// --- endpoint universale /command (compatibilità con vecchi client) ---
+app.post('/command', (req, res) => {
+  const command = req.body.command || req.body.type || 'unknown';
+  appendLog(`[UNIV-COMMAND] ${command} ${JSON.stringify(req.body.data||'')} `);
+  res.json({ status: 'ok', message: `Comando "${command}" ricevuto` });
 });
 
+// --- ping + ui root ---
+app.get('/ping', (req, res) => res.send('✅ Genesis è attivo e ti ascolta, Comandante.'));
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'console.html'));
+  // se c'è console.html nella public la serve, altrimenti lista file
+  const consoleFile = path.join(__dirname, 'public', 'console.html');
+  if (fs.existsSync(consoleFile)) return res.sendFile(consoleFile);
+  res.send(`<html><body><h3>Genesis Console</h3><p>Visit /public/console.html</p></body></html>`);
 });
 
-// ─── 7. ERRORE GLOBALE ─────────────────────────────────
+// --- global error handler ---
 app.use((err, req, res, next) => {
-  console.error('🔥 Errore interno:', err);
+  console.error('🔥 Errore interno:', err && err.stack ? err.stack : err);
+  appendLog(`[ERRORE] ${err && err.message ? err.message : JSON.stringify(err)}`);
   res.status(500).send('Errore interno del server Genesis.');
 });
 
-// ─── 8. AVVIO SERVER ──────────────────────────────────
+// --- prova a caricare moduli /modules (se esistono) ma non crashare se mancano ---
+const modulesDir = path.join(__dirname, 'modules');
+if (fs.existsSync(modulesDir)) {
+  fs.readdirSync(modulesDir).forEach(f => {
+    if (!f.endsWith('.js')) return;
+    try {
+      requireSafeLocal(`modules/${f}`);
+      console.log(`+ Modulo caricato (modules/${f})`);
+    } catch (e) {
+      console.warn(`(WARN) errore loading module ${f}: ${e.message}`);
+    }
+  });
+} else {
+  console.log('(INFO) Nessuna cartella modules/ trovata — skip modules load.');
+}
+
+// --- start server ---
 const PORT = process.env.PORT || 3131;
 app.listen(PORT, () => {
   console.log(`🚀 Genesis è online sulla porta ${PORT}`);
-  fs.appendFileSync(LOG_PATH, `🟢 Genesis Console LIVE sulla porta ${PORT}\n`);
+  appendLog(`🟢 Genesis Console LIVE sulla porta ${PORT}`);
 });
